@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   target: 'web',
-  entry: './src/index.ts',
+  entry: './src/index.tsx',
   optimization: {
     splitChunks: {
       chunks: 'initial',
@@ -19,7 +19,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
@@ -33,4 +33,7 @@ module.exports = {
       template: './src/index.html',
     }),
   ],
+  resolve: {
+    extensions: ['.js', '.ts', '.tsx'],
+  },
 };
