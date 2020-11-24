@@ -1,11 +1,6 @@
 import './index.less';
 
-import React, {
-  useRef,
-  useLayoutEffect,
-  useCallback,
-  ReactSVGElement,
-} from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 export interface GraphProps {
@@ -32,7 +27,7 @@ export const Graph: React.FC<GraphProps> = ({
 }) => {
   const ref = useRef<SVGSVGElement>();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (nodes && edges && ref.current) {
       const svg = d3.select(ref.current);
 
@@ -45,35 +40,12 @@ export const Graph: React.FC<GraphProps> = ({
             .id((d) => d.id)
             .distance(120),
         )
-        .force(
-          'charge',
-          d3.forceManyBody().strength(-500).distanceMax(150),
-        )
+        .force('charge', d3.forceManyBody().strength(-500).distanceMax(150))
         .force('center', d3.forceCenter(width / 2, height / 2).strength(1.5));
 
-      const link = svg
-        .append('g')
-        .attr('stroke', '#999')
-        .attr('stroke-opacity', 0.6)
-        .selectAll('line')
-        .data(edges)
-        .join('line')
-        .attr('stroke-width', 2);
+      const link = svg.selectAll('line').data(edges).join('line');
 
-      const node = svg
-        .append('g')
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 1.5)
-        .selectAll('circle')
-        .data(nodes)
-        .join('g')
-        .append('circle')
-        .attr('r', 30)
-        .attr('fill', 'red')
-        .call(drag(simulation));
-
-      node.append('title').text((d) => d.id);
-      node.append('text').text((d) => d.id);
+      const node = svg.selectAll('g.node').data(nodes).call(drag(simulation));
 
       simulation.on('tick', () => {
         link
@@ -82,13 +54,31 @@ export const Graph: React.FC<GraphProps> = ({
           .attr('x2', (d: any) => d.target.x)
           .attr('y2', (d: any) => d.target.y);
 
-        node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+        node.attr('transform', (d) => {
+          const n = 10.0;
+          const x = Math.floor(d.x * n) / n;
+          const y = Math.floor(d.y * n) / n;
+
+          return `translate(${x},${y})`;
+        });
       });
     }
   }, [nodes, edges]);
 
   return (
-    <svg className="d3-component" width={width} height={height} ref={ref} />
+    <>
+      <svg className="d3-component" width={width} height={height} ref={ref}>
+        {edges.map((edge, i) => (
+          <line key={i} stroke="black" />
+        ))}
+        {nodes.map((node) => (
+          <g key={node.id} className="node">
+            <circle r="30" fill="red" />
+            <text>{node.id}</text>
+          </g>
+        ))}
+      </svg>
+    </>
   );
 };
 
