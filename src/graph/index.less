@@ -1,7 +1,25 @@
+.outer {
+  height: 100%;
+  width: 100%;
+}
+
+div {
+  padding: 0;
+}
+
 svg {
   text {
     stroke: none;
     text-anchor: middle;
     alignment-baseline: middle;
+  }
+}
+
+.c-svg-canvas {
+  border: 1px solid red;
+  svg {
+    display: block !important;
+    border: none !important;
+    margin: 0 !important;
   }
 }
