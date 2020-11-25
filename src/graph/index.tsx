@@ -50,7 +50,7 @@ const GraphGuts: React.FC<GraphProps> = ({ width, height, nodes, edges }) => {
 
 export const Graph: React.FC<GraphProps> = (props) => {
   return (
-    <SvgCanvas style={{ height: '500px' }}>
+    <SvgCanvas>
       <GraphGuts {...props} />
     </SvgCanvas>
   );
