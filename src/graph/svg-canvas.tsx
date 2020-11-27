@@ -74,15 +74,11 @@ export const SvgCanvas = forwardRef<
       state.current.canvas.setAttribute('width', `${width}px`);
       state.current.canvas.setAttribute('height', `${height}px`);
 
-      const center = `translate(${width / 2} ${height / 2})`;
-      const pre = `translate(${preX} ${preY})`;
-      const zoom = `scale(${scale})`;
-      const post = `translate(${-postX} ${-postY})`;
+      const pre = `translate(${width / 2 + preX} ${height / 2 + preY})`;
+      const zoom = `scale(${round1000(scale)})`;
+      const post = `translate(${-round10(postX)} ${-round10(postY)})`;
 
-      state.current.transformGroup.setAttribute(
-        'transform',
-        center + pre + zoom + post,
-      );
+      state.current.transformGroup.setAttribute('transform', pre + zoom + post);
     });
   });
 
@@ -137,3 +133,11 @@ export const SvgCanvas = forwardRef<
 });
 
 SvgCanvas.displayName = 'SvgCanvas';
+
+function round10(value: number): number {
+  return Math.round(value * 10.0) / 10.0;
+}
+
+function round1000(value: number): number {
+  return Math.round(value * 1000.0) / 1000.0;
+}
