@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { Edge, Node } from './types';
 
 export function useSimulation(
-  svg: SVGSVGElement,
   nodes: Node[],
   edges: Edge[],
-): void {
+): React.Ref<SVGSVGElement> {
+  const [svg, setSvg] = useState<SVGSVGElement>();
+  const ref = useCallback((el: SVGSVGElement) => {
+    setSvg(el);
+  }, []);
+
   useEffect(() => {
     if (nodes && edges && svg) {
       const selector = d3.select(svg);
@@ -47,6 +51,8 @@ export function useSimulation(
       });
     }
   }, [svg, nodes, edges]);
+
+  return ref;
 }
 
 function drag(simulation: d3.Simulation<Node, Edge>): any {

@@ -2,7 +2,7 @@ import './index.less';
 
 import React from 'react';
 
-import { SvgCanvas, useSvgCanvas } from './svg-canvas';
+import { SvgCanvas } from './svg-canvas';
 import { Edge, Node } from './types';
 import { useSimulation } from './use-simulation';
 
@@ -13,12 +13,11 @@ export interface GraphProps {
   edges: Edge[];
 }
 
-const GraphGuts: React.FC<GraphProps> = ({ width, height, nodes, edges }) => {
-  const svg = useSvgCanvas();
-  useSimulation(svg, nodes, edges);
+export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
+  const ref = useSimulation(nodes, edges);
 
   return (
-    <>
+    <SvgCanvas ref={ref}>
       <line
         x1="0"
         x2="0"
@@ -44,14 +43,6 @@ const GraphGuts: React.FC<GraphProps> = ({ width, height, nodes, edges }) => {
           <text>{node.id}</text>
         </g>
       ))}
-    </>
-  );
-};
-
-export const Graph: React.FC<GraphProps> = (props) => {
-  return (
-    <SvgCanvas>
-      <GraphGuts {...props} />
     </SvgCanvas>
   );
 };

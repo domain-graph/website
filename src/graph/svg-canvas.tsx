@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useRef, useState, forwardRef } from 'react';
 
 import { useDrag } from './use-drag';
 import { useResize } from './use-resize';
@@ -28,17 +22,10 @@ interface State {
   height: number;
 }
 
-const context = createContext<SVGSVGElement>(null);
-
-export function useSvgCanvas() {
-  return useContext(context);
-}
-
-export const SvgCanvas: React.FC<SvgCanvasProps> = ({
-  className,
-  style,
-  children,
-}) => {
+export const SvgCanvas = forwardRef<
+  SVGSVGElement,
+  React.PropsWithChildren<SvgCanvasProps>
+>(({ className, style, children }, forwardedRef) => {
   const state = useRef<State>({
     wrapper: null,
     canvas: null,
@@ -53,10 +40,21 @@ export const SvgCanvas: React.FC<SvgCanvasProps> = ({
   });
 
   const [wrapper, setWrapper] = useState<HTMLDivElement>(null);
-  const wrapperRef = useCallback((element: HTMLDivElement) => {
-    setWrapper(element);
-    state.current.wrapper = element;
-  }, []);
+  const wrapperRef = useCallback(
+    (element: HTMLDivElement) => {
+      setWrapper(element);
+      const ref = forwardedRef as any;
+      if (ref) {
+        if (typeof ref === 'function') {
+          ref(element);
+        } else {
+          ref.current = element;
+        }
+      }
+      state.current.wrapper = element;
+    },
+    [forwardedRef],
+  );
 
   const [canvas, setCanvas] = useState<SVGSVGElement>(null);
   const canvasRef = useCallback((element: SVGSVGElement) => {
@@ -126,16 +124,16 @@ export const SvgCanvas: React.FC<SvgCanvasProps> = ({
   });
 
   return (
-    <context.Provider value={canvas}>
-      <div
-        ref={wrapperRef}
-        className={`c-svg-canvas${className ? ' ' + className : ''}`}
-        style={style}
-      >
-        <svg ref={canvasRef}>
-          <g ref={transformGroupRef}>{children}</g>
-        </svg>
-      </div>
-    </context.Provider>
+    <div
+      ref={wrapperRef}
+      className={`c-svg-canvas${className ? ' ' + className : ''}`}
+      style={style}
+    >
+      <svg ref={canvasRef}>
+        <g ref={transformGroupRef}>{children}</g>
+      </svg>
+    </div>
   );
-};
+});
+
+SvgCanvas.displayName = 'SvgCanvas';
