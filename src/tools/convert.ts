@@ -36,9 +36,17 @@ const types = schema.data.__schema.types
           !isScalarFieldType(field.type.type),
       ),
   }))
-  .filter((x) => x.name !== 'Query');
+  .filter(
+    (x) =>
+      x.name !== 'Query' &&
+      x.name !== 'Mutation' &&
+      x.name !== 'UserError' &&
+      x.name !== 'PageInfo' &&
+      !x.name.startsWith('__') &&
+      !x.name.endsWith('Error'),
+  );
 
-const nodes = types.map((type) => ({ id: type.name })).slice(100, 120);
+const nodes = types.map((type) => ({ id: type.name }));
 const links = types
   .map((type) =>
     type.fields.map((field) => ({
