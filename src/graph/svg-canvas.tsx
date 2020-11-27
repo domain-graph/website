@@ -26,6 +26,7 @@ export const SvgCanvas = forwardRef<
   SVGSVGElement,
   React.PropsWithChildren<SvgCanvasProps>
 >(({ className, style, children }, forwardedRef) => {
+  const [isDragging, setIsDragging] = useState(false);
   const state = useRef<State>({
     wrapper: null,
     canvas: null,
@@ -89,6 +90,8 @@ export const SvgCanvas = forwardRef<
 
       updateFn.current();
     },
+    onBegin: () => setIsDragging(true),
+    onEnd: () => setIsDragging(false),
   });
 
   useZoom(canvas, ({ value, x, y }) => {
@@ -122,7 +125,9 @@ export const SvgCanvas = forwardRef<
   return (
     <div
       ref={wrapperRef}
-      className={`c-svg-canvas${className ? ' ' + className : ''}`}
+      className={`c-svg-canvas${className ? ' ' + className : ''}${
+        isDragging ? ' dragging' : ''
+      }`}
       style={style}
     >
       <svg ref={canvasRef}>
