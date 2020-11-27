@@ -2,7 +2,7 @@ import './index.less';
 
 import React from 'react';
 
-import { SvgCanvas } from './svg-canvas';
+import { SvgCanvas } from '../svg-canvas';
 import { Edge, Node } from './types';
 import { useSimulation } from './use-simulation';
 
