@@ -2,10 +2,13 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useRef,
   useState,
 } from 'react';
+
+import { useDrag } from './use-drag';
+import { useResize } from './use-resize';
+import { useZoom } from './use-zoom';
 
 export interface SvgCanvasProps {
   className?: string;
@@ -16,9 +19,10 @@ interface State {
   wrapper: HTMLDivElement;
   canvas: SVGSVGElement;
   transformGroup: SVGGElement;
-  observer: ResizeObserver;
-  x: number;
-  y: number;
+  postX: number;
+  postY: number;
+  preX: number;
+  preY: number;
   scale: number;
   width: number;
   height: number;
@@ -39,20 +43,22 @@ export const SvgCanvas: React.FC<SvgCanvasProps> = ({
     wrapper: null,
     canvas: null,
     transformGroup: null,
-    observer: null,
-    x: 0,
-    y: 0,
+    postX: 0,
+    postY: 0,
+    preX: 0,
+    preY: 0,
     scale: 1,
     width: 300,
     height: 150,
   });
 
+  const [wrapper, setWrapper] = useState<HTMLDivElement>(null);
   const wrapperRef = useCallback((element: HTMLDivElement) => {
+    setWrapper(element);
     state.current.wrapper = element;
   }, []);
 
   const [canvas, setCanvas] = useState<SVGSVGElement>(null);
-
   const canvasRef = useCallback((element: SVGSVGElement) => {
     setCanvas(element);
     state.current.canvas = element;
@@ -62,108 +68,62 @@ export const SvgCanvas: React.FC<SvgCanvasProps> = ({
     state.current.transformGroup = element;
   }, []);
 
-  const updateViewBox = useCallback(() => {
+  const updateFn = useRef(() => {
     requestAnimationFrame(() => {
-      console.log('updateViewBox', state.current.width, state.current.height);
-      state.current.canvas.setAttribute(
-        'viewBox',
-        `${-state.current.width / 2} ${-state.current.height / 2} ${
-          state.current.width
-        } ${state.current.height}`,
-      );
-      state.current.canvas.setAttribute('width', `${state.current.width}px`);
-      state.current.canvas.setAttribute('height', `${state.current.height}px`);
-    });
-  }, []);
+      const { width, height, postX, postY, preX, preY, scale } = state.current;
 
-  const updateTransform = useCallback(() => {
-    requestAnimationFrame(() => {
+      state.current.canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      state.current.canvas.setAttribute('width', `${width}px`);
+      state.current.canvas.setAttribute('height', `${height}px`);
+
+      const center = `translate(${width / 2} ${height / 2})`;
+      const pre = `translate(${preX} ${preY})`;
+      const zoom = `scale(${scale})`;
+      const post = `translate(${-postX} ${-postY})`;
+
       state.current.transformGroup.setAttribute(
         'transform',
-        `scale(${state.current.scale})translate(${-state.current.x} ${-state
-          .current.y})`,
+        center + pre + zoom + post,
       );
     });
-  }, []);
+  });
 
-  const dragStart = useRef<{
-    x: number;
-    y: number;
-    originX: number;
-    originY: number;
-  }>(null);
+  useDrag(canvas, {
+    onMove: ({ dx, dy }) => {
+      state.current.preX += dx;
+      state.current.preY += dy;
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (dragStart.current) {
-      const dx = (e.offsetX - dragStart.current.x) / state.current.scale;
-      const dy = (e.offsetY - dragStart.current.y) / state.current.scale;
+      updateFn.current();
+    },
+  });
 
-      state.current.x = dragStart.current.originX - dx;
-      state.current.y = dragStart.current.originY - dy;
+  useZoom(canvas, ({ value, x, y }) => {
+    const centerX = state.current.width / 2;
+    const centerY = state.current.height / 2;
 
-      updateTransform();
-    }
-  }, []);
+    const newPreX = x - centerX;
+    const newPreY = y - centerY;
 
-  const handleMouseUp = useCallback(() => {
-    state.current.canvas.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-    dragStart.current = null;
-  }, []);
+    const dx = newPreX - state.current.preX;
+    const dy = newPreY - state.current.preY;
 
-  const handleMouseDown = useCallback((e: MouseEvent) => {
-    state.current.canvas.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    dragStart.current = {
-      x: e.offsetX,
-      y: e.offsetY,
-      originX: state.current.x,
-      originY: state.current.y,
-    };
-  }, []);
+    state.current.preX = newPreX;
+    state.current.preY = newPreY;
 
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
+    state.current.postX += dx / state.current.scale;
+    state.current.postY += dy / state.current.scale;
 
-    let z = state.current.scale;
+    state.current.scale = value;
 
-    z += e.deltaY * -0.005;
+    updateFn.current();
+  });
 
-    // Restrict scale
-    z = Math.min(Math.max(0.125, z), 4);
+  useResize(wrapper, ({ width, height }) => {
+    state.current.width = width;
+    state.current.height = height;
 
-    state.current.scale = z;
-
-    updateTransform();
-  }, []);
-
-  useEffect(() => {
-    if (canvas) {
-      state.current.observer ||= new ResizeObserver(([entry]) => {
-        state.current.width = entry.target.clientWidth;
-        state.current.height = entry.target.clientHeight;
-        updateViewBox();
-      });
-
-      state.current.width = canvas.clientWidth;
-      state.current.height = canvas.clientHeight;
-
-      updateViewBox();
-      updateTransform();
-
-      canvas.addEventListener('mousedown', handleMouseDown);
-      canvas.addEventListener('wheel', handleWheel);
-      state.current.observer.observe(state.current.wrapper);
-
-      return () => {
-        canvas.removeEventListener('mousedown', handleMouseDown);
-        canvas.removeEventListener('wheel', handleWheel);
-        state.current.observer.unobserve(state.current.wrapper);
-      };
-    } else {
-      return undefined;
-    }
-  }, [canvas]);
+    updateFn.current();
+  });
 
   return (
     <context.Provider value={canvas}>
