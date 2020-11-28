@@ -88,18 +88,20 @@ export function useDrag(
   });
 
   const handleMouseDown = useRef((e: MouseEvent) => {
-    state.current.beginX = e.offsetX;
-    state.current.beginY = e.offsetY;
-    state.current.currentX = e.offsetX;
-    state.current.currentY = e.offsetY;
+    if (e.button === 0) {
+      state.current.beginX = e.offsetX;
+      state.current.beginY = e.offsetY;
+      state.current.currentX = e.offsetX;
+      state.current.currentY = e.offsetY;
 
-    callbacks.current.onBegin?.({ beginX: e.offsetX, beginY: e.offsetY });
+      callbacks.current.onBegin?.({ beginX: e.offsetX, beginY: e.offsetY });
 
-    document.addEventListener('mouseup', handleMouseUp.current);
-    state.current.element.addEventListener(
-      'mousemove',
-      handleMouseMove.current,
-    );
+      document.addEventListener('mouseup', handleMouseUp.current);
+      state.current.element.addEventListener(
+        'mousemove',
+        handleMouseMove.current,
+      );
+    }
   });
 
   useEffect(() => {
