@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Edge, Node } from './types';
 
@@ -9,29 +9,87 @@ export function useSimulation(
   const [svg, setSvg] = useState<SVGSVGElement>();
   const ref = useCallback((el: SVGSVGElement) => {
     setSvg(el);
-  }, []);
+function useStableClone<TItem, TClone extends TItem>(
+  items: TItem[],
+  compare: (a: TItem, b: TItem & Partial<Omit<TClone, keyof TItem>>) => boolean,
+): (TItem & Partial<Omit<TClone, keyof TItem>>)[] {
+  type C = TItem & Partial<Omit<TClone, keyof TItem>>;
+
+  const [clonedNodes, setClonedNodes] = useState<C[]>(
+    items.map((item) => ({ ...item })),
+  );
+
+  const compareFn = useRef(compare);
+  useEffect(() => {
+    compareFn.current = compare;
+  }, [compare]);
 
   useEffect(() => {
-    if (nodes && edges && svg) {
-      const selector = d3.select(svg);
+    setClonedNodes((prev) =>
+      items.map((nextNode) => {
+        const prevNode = prev.find((n) => compareFn.current(nextNode, n));
 
+        if (prevNode) {
+          for (const key of Object.keys(nextNode)) {
+            prevNode[key] = nextNode[key];
+          }
+          return prevNode;
+        } else {
+          return { ...nextNode };
+        }
+      }),
+    );
+  }, [items]);
+
+  return clonedNodes;
+}
+
+export function useSimulation(nodes: Node[], edges: Edge[]): void {
+  const [svg, setSvg] = useState(d3.select('svg'));
+
+  useEffect(() => {
+    setSvg(d3.select('svg'));
+  }, []);
+
+  const clonedNodes = useStableClone(nodes, (a, b) => a.id === b.id);
+  const clonedEdges = useStableClone(edges, (a, b) => a.id === b.id);
+
+  useEffect(() => {
+    if (svg && clonedNodes) {
       const simulation = d3
-        .forceSimulation<Node, Edge>(nodes)
+        .forceSimulation<Node, Edge>(clonedNodes)
         .force(
           'link',
           d3
-            .forceLink<Node, Edge>(edges)
+            .forceLink<Node, Edge>(clonedEdges)
             .id((d) => d.id)
             .distance(120),
         )
         .force('charge', d3.forceManyBody().strength(-500).distanceMax(150))
-        .force('center', d3.forceCenter(0, 0).strength(1.5));
+        .force('center', d3.forceCenter(0, 0).strength(1));
 
-      const link = selector.selectAll('line.edge').data(edges).join('line');
+      const link = svg.selectAll('line.edge').data(clonedEdges);
 
-      const node = selector
+      link.exit().remove();
+
+      const node = svg
         .selectAll('g.node')
-        .data(nodes)
+        .data(clonedNodes, function (this: Element, d: any) {
+          // eslint-disable-next-line no-invalid-this
+          return d ? d.id : this.id;
+        });
+
+      node
+        .join('g', (d: any) => {
+          console.log('node.join', d);
+          const n = 600;
+          d.x ||= Math.random() * n - n / 2;
+          d.y ||= Math.random() * n - n / 2;
+          return d;
+        })
+        .attr('transform', (d: any) => {
+          return `translate(${d.x},${d.y})`;
+        })
         .call(drag(simulation));
 
       simulation.on('tick', () => {
@@ -50,9 +108,7 @@ export function useSimulation(
         });
       });
     }
-  }, [svg, nodes, edges]);
-
-  return ref;
+  }, [clonedNodes, clonedEdges, svg]);
 }
 
 function drag(simulation: d3.Simulation<Node, Edge>): any {

@@ -15,7 +15,6 @@ svg {
   }
 }
 .c-svg-canvas {
-  border: 1px solid red;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -30,4 +29,31 @@ svg {
     border: none !important;
     margin: 0 !important;
   }
+}
+
+ul.hidden-nodes {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+  font-family: sans-serif;
+  color: black;
+}
+
+g.node {
+  circle {
+    fill: red;
+    stroke: black;
+    stroke-width: 2;
+  }
+
+  text {
+    font-family: sans-serif;
+    fill: black;
+  }
+}
+
+line.edge {
+  stroke: black;
+  stroke-width: 2;
 }

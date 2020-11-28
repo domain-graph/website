@@ -5,6 +5,8 @@ export interface Node extends d3.SimulationNodeDatum {
 }
 
 export interface Edge {
+  id: string;
+  name: string;
   source: string;
   target: string;
 }

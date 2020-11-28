@@ -43,13 +43,17 @@ const types = schema.data.__schema.types
       x.name !== 'UserError' &&
       x.name !== 'PageInfo' &&
       !x.name.startsWith('__') &&
-      !x.name.endsWith('Error'),
+      !x.name.endsWith('Error') &&
+      !x.name.endsWith('Payload') &&
+      !x.name.endsWith('Result'),
   );
 
 const nodes = types.map((type) => ({ id: type.name }));
 const links = types
   .map((type) =>
     type.fields.map((field) => ({
+      id: `${type.name}>${field.name}>${field.type.type.name}`,
+      name: field.name,
       source: type.name,
       target: field.type.type.name,
     })),
@@ -61,13 +65,62 @@ const links = types
       nodes.some((n) => n.id === link.target),
   );
 
+type Node = typeof nodes[number];
+type Edge = typeof links[number];
+
+function traverse(
+  name: string,
+  depth: number,
+  stop: string[] = [],
+): { nodes: Node[]; edges: Edge[] } {
+  const node = nodes.find((n) => n.id === name);
+
+  console.log(node);
+
+  const foundNodes = new Set<Node>([node]);
+  const foundEdges = new Set<Edge>();
+
+  let startNodes = new Set<Node>([node]);
+
+  for (let i = 0; i < depth; i++) {
+    console.log({ i, startNodes });
+    const startFrom = Array.from(startNodes.values());
+    startNodes = new Set<Node>();
+
+    for (const s of startFrom) {
+      const edges = links.filter(
+        (link) => link.source === s.id || link.target === s.id,
+      );
+      console.log({ edges });
+      edges.forEach((edge) => foundEdges.add(edge));
+
+      const xxx = nodes.filter(
+        (n) =>
+          !foundNodes.has(n) &&
+          edges.some((e) => e.source === n.id || e.target === n.id),
+      );
+      xxx.forEach((n) => {
+        foundNodes.add(n);
+        if (!stop.includes(n.id)) startNodes.add(n);
+      });
+    }
+  }
+
+  return {
+    nodes: Array.from(foundNodes.values()),
+    edges: Array.from(foundEdges.values()),
+  };
+}
+
+const myData = traverse('ProjectTrackingEmployee', 4, ['Employee', 'Company']);
+
 writeFileSync(
   join('data', 'nodes.json'),
-  format(JSON.stringify(nodes), { parser: 'json' }),
+  format(JSON.stringify(myData.nodes), { parser: 'json' }),
 );
 writeFileSync(
   join('data', 'links.json'),
-  format(JSON.stringify(links), { parser: 'json' }),
+  format(JSON.stringify(myData.edges), { parser: 'json' }),
 );
 
 function getFieldType(
