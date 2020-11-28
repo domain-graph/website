@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Edge, Node } from './types';
 
@@ -44,17 +44,38 @@ function useStableClone<TItem, TClone extends TItem>(
   return clonedNodes;
 }
 
-export function useSimulation(nodes: Node[], edges: Edge[]): void {
+export function useSimulation(
+  nodes: Node[],
+  edges: Edge[],
+  onNodeMove: (values: { id: string; x: number; y: number }) => void,
+  onEdgeMove: (values: {
+    id: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }) => void,
+): void {
   const [svg, setSvg] = useState(d3.select('svg'));
 
   useEffect(() => {
     setSvg(d3.select('svg'));
   }, []);
 
+  const handleNodeMove = useRef(onNodeMove);
+  useEffect(() => {
+    handleNodeMove.current = onNodeMove;
+  }, [onNodeMove]);
+
+  const handleEdgeMove = useRef(onEdgeMove);
+  useEffect(() => {
+    handleEdgeMove.current = onEdgeMove;
+  }, [onEdgeMove]);
+
   const clonedNodes = useStableClone(nodes, (a, b) => a.id === b.id);
   const clonedEdges = useStableClone(edges, (a, b) => a.id === b.id);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (svg && clonedNodes) {
       const simulation = d3
         .forceSimulation<Node, Edge>(clonedNodes)
@@ -70,8 +91,6 @@ export function useSimulation(nodes: Node[], edges: Edge[]): void {
 
       const link = svg.selectAll('line.edge').data(clonedEdges);
 
-      link.exit().remove();
-
       const node = svg
         .selectAll('g.node')
         .data(clonedNodes, function (this: Element, d: any) {
@@ -79,32 +98,21 @@ export function useSimulation(nodes: Node[], edges: Edge[]): void {
           return d ? d.id : this.id;
         });
 
-      node
-        .join('g', (d: any) => {
-          console.log('node.join', d);
-          const n = 600;
-          d.x ||= Math.random() * n - n / 2;
-          d.y ||= Math.random() * n - n / 2;
-          return d;
-        })
-        .attr('transform', (d: any) => {
-          return `translate(${d.x},${d.y})`;
-        })
-        .call(drag(simulation));
+      node.call(drag(simulation));
 
       simulation.on('tick', () => {
-        link
-          .attr('x1', (d: any) => d.source.x)
-          .attr('y1', (d: any) => d.source.y)
-          .attr('x2', (d: any) => d.target.x)
-          .attr('y2', (d: any) => d.target.y);
+        link.each((d: any) => {
+          handleEdgeMove.current({
+            id: d.id,
+            x1: d.source.x,
+            y1: d.source.y,
+            x2: d.target.x,
+            y2: d.target.y,
+          });
+        });
 
-        node.attr('transform', (d) => {
-          const n = 10.0;
-          const x = Math.floor(d.x * n) / n;
-          const y = Math.floor(d.y * n) / n;
-
-          return `translate(${x},${y})`;
+        node.each((d) => {
+          handleNodeMove.current({ id: d.id, x: d.x, y: d.y });
         });
       });
     }

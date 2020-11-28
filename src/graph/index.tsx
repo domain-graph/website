@@ -11,6 +11,8 @@ import React, {
 import { SvgCanvas } from '../svg-canvas';
 import { Edge, Node } from './types';
 import { useSimulation } from './use-simulation';
+import { DomainObjectDataFunction, DomainObject } from './domain-object';
+import { DomainEdge, DomainEdgeDataFunction } from './domain-edge';
 
 export interface GraphProps {
   width: number;
@@ -66,18 +68,47 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
     );
   }, []);
 
-  useSimulation(visibleNodes, visibleEdges);
+  const nodeCallbackIndex = useRef<{ [id: string]: DomainObjectDataFunction }>(
+    {},
+  );
+  const handleNodeReady = useCallback(
+    (id: string, dataFn: DomainObjectDataFunction) => {
+      nodeCallbackIndex.current[id] = dataFn;
+    },
+    [],
+  );
+  const edgeCallbackIndex = useRef<{ [id: string]: DomainEdgeDataFunction }>(
+    {},
+  );
+  const handleEdgeReady = useCallback(
+    (id: string, dataFn: DomainEdgeDataFunction) => {
+      edgeCallbackIndex.current[id] = dataFn;
+    },
+    [],
+  );
+
+  useSimulation(
+    visibleNodes,
+    visibleEdges,
+    ({ id, x, y }) => {
+      nodeCallbackIndex.current[id]?.({ x, y });
+    },
+    ({ id, x1, y1, x2, y2 }) => {
+      edgeCallbackIndex.current[id]?.({ x1, y1, x2, y2 });
+    },
+  );
 
   return (
     <>
       <SvgCanvas>
         {visibleEdges.map((edge) => (
-          <line key={edge.id} id={edge.id} className="edge" stroke="black" />
+          <DomainEdge key={edge.id} edge={edge} onReady={handleEdgeReady} />
         ))}
         {visibleNodes.map((node) => (
           <DomainObject
             key={node.id}
             onHide={() => setIsHidden(node.id, true)}
+            onReady={handleNodeReady}
             node={node}
           />
         ))}
@@ -94,31 +125,3 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
   );
 });
 Graph.displayName = 'Graph';
-
-export interface DomainObjectProps {
-  node: Node;
-  onHide: (node: Node) => void;
-}
-
-export const DomainObject: React.FC<DomainObjectProps> = React.memo(
-  ({ node, onHide }) => {
-    const handleClick = useCallback(
-      (e: React.MouseEvent<SVGTextElement, MouseEvent>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onHide(node);
-      },
-      [node, onHide],
-    );
-    return (
-      <g className="node" id={node.id}>
-        <circle r="30" />
-        <text>{node.id}</text>
-        <text x="15" y="-15" onClick={handleClick}>
-          hide
-        </text>
-      </g>
-    );
-  },
-);
-DomainObject.displayName = 'DomainObject';
