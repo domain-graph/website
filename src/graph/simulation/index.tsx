@@ -26,9 +26,9 @@ export function useNodeMutation(nodeId: string, onChange: NodeMutation): void {
   const subscribe = useContext(context)?.nodeSubscriber;
 
   useEffect(() => {
-    subscribe?.(nodeId, (change) => {
+    subscribe?.(nodeId, (event, location) => {
       requestAnimationFrame(() => {
-        onChangeRef.current?.(change);
+        onChangeRef.current?.(event, location);
       });
     });
   }, [subscribe, nodeId]);
@@ -38,7 +38,10 @@ export interface NodeMutationSubscriber {
   (nodeId: string, mutation: NodeMutation): void;
 }
 export interface NodeMutation {
-  (change: { x: number; y: number }): void;
+  (
+    event: 'dragstart' | 'dragend' | 'drag' | 'tick',
+    location: { x: number; y: number },
+  ): void;
 }
 
 export function useEdgeMutation(edgeId: string, onChange: EdgeMutation): void {
@@ -109,6 +112,9 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
         .force('charge', d3.forceManyBody().strength(-500).distanceMax(150))
         .force('center', d3.forceCenter(0, 0).strength(1));
 
+      // TODO: consider this when we can plumn tick XOR drag event data
+      // if (!clonedNodes.some((n) => !n.fixed)) simulation.stop();
+
       const link = svg.selectAll('line.edge').data(clonedEdges);
 
       const node = svg
@@ -123,7 +129,7 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
         d3.select((this as any).parentNode).raise();
       });
 
-      node.call(drag(simulation));
+      node.call(drag(simulation, nodeMutations.current));
 
       simulation.on('tick', () => {
         link.each((d: any) => {
@@ -136,9 +142,15 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
         });
 
         node.each((d) => {
-          nodeMutations.current[d.id]?.({ x: d.x, y: d.y });
+          nodeMutations.current[d.id]?.('tick', { x: d.x, y: d.y });
         });
       });
+
+      return () => {
+        simulation.stop();
+      };
+    } else {
+      return undefined;
     }
   }, [clonedNodes, clonedEdges, svg]);
 
@@ -149,22 +161,41 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
   );
 };
 
-function drag(simulation: d3.Simulation<Node, Edge>): any {
+function drag(
+  simulation: d3.Simulation<Node, Edge>,
+  subscribers: { [id: string]: NodeMutation },
+): any {
   function dragstarted(event) {
     if (!event.active) simulation.alphaTarget(0.3).restart();
+    subscribers[event.subject.id]?.('dragstart', {
+      x: event.subject.x,
+      y: event.subject.y,
+    });
     event.subject.fx = event.subject.x;
     event.subject.fy = event.subject.y;
   }
 
   function dragged(event) {
+    subscribers[event.subject.id]?.('drag', {
+      x: event.x,
+      y: event.y,
+    });
     event.subject.fx = event.x;
     event.subject.fy = event.y;
   }
 
   function dragended(event) {
     if (!event.active) simulation.alphaTarget(0);
-    event.subject.fx = null;
-    event.subject.fy = null;
+    subscribers[event.subject.id]?.('dragend', {
+      x: event.subject.x,
+      y: event.subject.y,
+    });
+    if (!event.subject.fixed) {
+      event.subject.fx = null;
+      event.subject.fy = null;
+      event.subject.vx = null;
+      event.subject.vy = null;
+    }
   }
 
   return d3

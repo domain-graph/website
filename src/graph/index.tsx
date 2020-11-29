@@ -52,12 +52,20 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
   );
 
   const setIsHidden = useCallback((nodeId: string, isHidden: boolean) => {
-    console.log(isHidden ? 'hide' : 'show', nodeId);
-
     setAllNodes((prev) =>
       prev.some((node) => node.id === nodeId)
         ? prev.map((node) =>
-            node.id === nodeId ? { ...node, isHidden } : node,
+            node.id === nodeId ? { ...node, isHidden, fixed: false } : node,
+          )
+        : prev,
+    );
+  }, []);
+
+  const setIsPinned = useCallback((nodeId: string, isPinned: boolean) => {
+    setAllNodes((prev) =>
+      prev.some((node) => node.id === nodeId)
+        ? prev.map((node) =>
+            node.id === nodeId ? { ...node, fixed: isPinned } : node,
           )
         : prev,
     );
@@ -75,7 +83,9 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
           {visibleNodes.map((node) => (
             <DomainObject
               key={node.id}
-              onHide={() => setIsHidden(node.id, true)}
+              onPin={(id) => setIsPinned(id, true)}
+              onUnpin={(id) => setIsPinned(id, false)}
+              onHide={(id) => setIsHidden(id, true)}
               node={node}
             />
           ))}
