@@ -88,7 +88,7 @@ export function useDrag(
   });
 
   const handleMouseDown = useRef((e: MouseEvent) => {
-    if (e.button === 0) {
+    if (e.button === 0 && e.target === state.current.element) {
       state.current.beginX = e.offsetX;
       state.current.beginY = e.offsetY;
       state.current.currentX = e.offsetX;

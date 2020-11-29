@@ -118,6 +118,11 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
           return d ? d.id : this.id;
         });
 
+      node.on('mouseover', function (d) {
+        // eslint-disable-next-line no-invalid-this
+        d3.select((this as any).parentNode).raise();
+      });
+
       node.call(drag(simulation));
 
       simulation.on('tick', () => {

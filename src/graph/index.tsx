@@ -7,6 +7,7 @@ import { Edge, Node } from './types';
 import { DomainObject } from './domain-object';
 import { DomainEdge } from './domain-edge';
 import { Simulation } from './simulation';
+import Eye from '../icons/eye';
 
 export interface GraphProps {
   width: number;
@@ -18,11 +19,11 @@ export interface GraphProps {
 type Hidable<T> = T & { isHidden: boolean };
 
 export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
-    // const [visibleNodes, setVisibleNodes] = useState(nodes);
+  // const [visibleNodes, setVisibleNodes] = useState(nodes);
   // const [visibleEdges, setVisibleEdges] = useState(edges);
   // const [hiddenNodes, setHiddenNodes] = useState<Node[]>([]);
   // const [hiddenEdges, setHiddenEdges] = useState<Edge[]>([]);
-  
+
   const [allNodes, setAllNodes] = useState<Hidable<Node>[]>(
     nodes.map((node) => ({ ...node, isHidden: false })),
   );
@@ -65,21 +66,27 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
   return (
     <Simulation nodes={visibleNodes} edges={visibleEdges}>
       <SvgCanvas>
-        {visibleEdges.map((edge) => (
-          <DomainEdge key={edge.id} edge={edge} />
-        ))}
-        {visibleNodes.map((node) => (
-          <DomainObject
-            key={node.id}
-            onHide={() => setIsHidden(node.id, true)}
-            node={node}
-          />
-        ))}
+        <g>
+          {visibleEdges.map((edge) => (
+            <DomainEdge key={edge.id} edge={edge} />
+          ))}
+        </g>
+        <g>
+          {visibleNodes.map((node) => (
+            <DomainObject
+              key={node.id}
+              onHide={() => setIsHidden(node.id, true)}
+              node={node}
+            />
+          ))}
+        </g>
       </SvgCanvas>
       <ul className="hidden-nodes">
         {hiddenNodes.map((node) => (
           <li key={node.id}>
-            <button onClick={() => setIsHidden(node.id, false)}>Show</button>
+            <button onClick={() => setIsHidden(node.id, false)}>
+              <Eye />
+            </button>
             <span>{node.id}</span>
           </li>
         ))}
