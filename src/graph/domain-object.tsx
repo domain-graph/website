@@ -1,32 +1,22 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Node } from './types';
-
-export interface Data {
-  x: number;
-  y: number;
-}
-
-export interface DomainObjectDataFunction {
-  (data: Data): void;
-}
+import { NodeMutationSubscriber, useNodeMutation } from './use-simulation';
 
 export interface DomainObjectProps {
   node: Node;
   onHide: (id: string) => void;
-  onReady: (id: string, dataFn: DomainObjectDataFunction) => void;
+  subscriber: NodeMutationSubscriber;
 }
 
 export const DomainObject: React.FC<DomainObjectProps> = React.memo(
-  ({ node, onHide, onReady }) => {
+  ({ node, onHide, subscriber }) => {
     const g = useRef<SVGGElement>();
-    useEffect(() => {
-      onReady(node.id, ({ x, y }: Data) => {
-        if (g.current) {
-          g.current.setAttribute('transform', `translate(${x} ${y})`);
-        }
-      });
-    }, [onReady, node.id]);
+    useNodeMutation(node.id, subscriber, ({ x, y }) => {
+      if (g.current) {
+        g.current.setAttribute('transform', `translate(${x} ${y})`);
+      }
+    });
 
     const handleClick = useCallback(
       (e: React.MouseEvent<SVGTextElement, MouseEvent>) => {

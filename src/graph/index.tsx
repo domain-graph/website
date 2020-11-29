@@ -11,8 +11,8 @@ import React, {
 import { SvgCanvas } from '../svg-canvas';
 import { Edge, Node } from './types';
 import { useSimulation } from './use-simulation';
-import { DomainObjectDataFunction, DomainObject } from './domain-object';
-import { DomainEdge, DomainEdgeDataFunction } from './domain-edge';
+import { DomainObject } from './domain-object';
+import { DomainEdge } from './domain-edge';
 
 export interface GraphProps {
   width: number;
@@ -68,47 +68,22 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
     );
   }, []);
 
-  const nodeCallbackIndex = useRef<{ [id: string]: DomainObjectDataFunction }>(
-    {},
-  );
-  const handleNodeReady = useCallback(
-    (id: string, dataFn: DomainObjectDataFunction) => {
-      nodeCallbackIndex.current[id] = dataFn;
-    },
-    [],
-  );
-  const edgeCallbackIndex = useRef<{ [id: string]: DomainEdgeDataFunction }>(
-    {},
-  );
-  const handleEdgeReady = useCallback(
-    (id: string, dataFn: DomainEdgeDataFunction) => {
-      edgeCallbackIndex.current[id] = dataFn;
-    },
-    [],
-  );
-
-  useSimulation(
+  const { nodeSubscriber, edgeSubscriber } = useSimulation(
     visibleNodes,
     visibleEdges,
-    ({ id, x, y }) => {
-      nodeCallbackIndex.current[id]?.({ x, y });
-    },
-    ({ id, x1, y1, x2, y2 }) => {
-      edgeCallbackIndex.current[id]?.({ x1, y1, x2, y2 });
-    },
   );
 
   return (
     <>
       <SvgCanvas>
         {visibleEdges.map((edge) => (
-          <DomainEdge key={edge.id} edge={edge} onReady={handleEdgeReady} />
+          <DomainEdge key={edge.id} edge={edge} subscriber={edgeSubscriber} />
         ))}
         {visibleNodes.map((node) => (
           <DomainObject
             key={node.id}
             onHide={() => setIsHidden(node.id, true)}
-            onReady={handleNodeReady}
+            subscriber={nodeSubscriber}
             node={node}
           />
         ))}

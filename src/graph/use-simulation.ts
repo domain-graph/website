@@ -1,4 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import * as d3 from 'd3';
 import { Edge, Node } from './types';
 
@@ -44,37 +50,84 @@ function useStableClone<TItem, TClone extends TItem>(
   return clonedNodes;
 }
 
-export function useSimulation(
-  nodes: Node[],
-  edges: Edge[],
-  onNodeMove: (values: { id: string; x: number; y: number }) => void,
-  onEdgeMove: (values: {
-    id: string;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-  }) => void,
+export function useNodeMutation(
+  nodeId: string,
+  subscribe: NodeMutationSubscriber,
+  onChange: NodeMutation,
 ): void {
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    subscribe(nodeId, (change) => {
+      requestAnimationFrame(() => {
+        onChangeRef.current?.(change);
+      });
+    });
+  }, [subscribe, nodeId]);
+}
+
+export interface NodeMutationSubscriber {
+  (nodeId: string, mutation: NodeMutation): void;
+}
+export interface NodeMutation {
+  (change: { x: number; y: number }): void;
+}
+
+export function useEdgeMutation(
+  edgeId: string,
+  subscribe: EdgeMutationSubscriber,
+  onChange: EdgeMutation,
+): void {
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    subscribe(edgeId, (change) => {
+      requestAnimationFrame(() => {
+        onChangeRef.current?.(change);
+      });
+    });
+  }, [subscribe, edgeId]);
+}
+
+export interface EdgeMutationSubscriber {
+  (edgeId: string, mutation: EdgeMutation): void;
+}
+export interface EdgeMutation {
+  (change: { x1: number; y1: number; x2: number; y2: number }): void;
+}
+
+export function useSimulation(nodes: Node[], edges: Edge[]) {
   const [svg, setSvg] = useState(d3.select('svg'));
 
   useEffect(() => {
     setSvg(d3.select('svg'));
   }, []);
 
-  const handleNodeMove = useRef(onNodeMove);
-  useEffect(() => {
-    handleNodeMove.current = onNodeMove;
-  }, [onNodeMove]);
-
-  const handleEdgeMove = useRef(onEdgeMove);
-  useEffect(() => {
-    handleEdgeMove.current = onEdgeMove;
-  }, [onEdgeMove]);
-
   const clonedNodes = useStableClone(nodes, (a, b) => a.id === b.id);
   const clonedEdges = useStableClone(edges, (a, b) => a.id === b.id);
 
+  const nodeMutations = useRef<{ [id: string]: NodeMutation }>({});
+  const nodeSubscriber: NodeMutationSubscriber = useCallback(
+    (id: string, dataFn: NodeMutation) => {
+      nodeMutations.current[id] = dataFn;
+    },
+    [],
+  );
+  const edgeMutations = useRef<{ [id: string]: EdgeMutation }>({});
+  const edgeSubscriber: EdgeMutationSubscriber = useCallback(
+    (id: string, dataFn: EdgeMutation) => {
+      edgeMutations.current[id] = dataFn;
+    },
+    [],
+  );
+
+  // Must be a layout effect because we attach the sim to existing DOM nodes
   useLayoutEffect(() => {
     if (svg && clonedNodes) {
       const simulation = d3
@@ -102,8 +155,7 @@ export function useSimulation(
 
       simulation.on('tick', () => {
         link.each((d: any) => {
-          handleEdgeMove.current({
-            id: d.id,
+          edgeMutations.current[d.id]?.({
             x1: d.source.x,
             y1: d.source.y,
             x2: d.target.x,
@@ -112,11 +164,13 @@ export function useSimulation(
         });
 
         node.each((d) => {
-          handleNodeMove.current({ id: d.id, x: d.x, y: d.y });
+          nodeMutations.current[d.id]?.({ x: d.x, y: d.y });
         });
       });
     }
   }, [clonedNodes, clonedEdges, svg]);
+
+  return { nodeSubscriber, edgeSubscriber };
 }
 
 function drag(simulation: d3.Simulation<Node, Edge>): any {
