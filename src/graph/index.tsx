@@ -17,12 +17,12 @@ export interface GraphProps {
 
 type Hidable<T> = T & { isHidden: boolean };
 
-export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
-  // const [visibleNodes, setVisibleNodes] = useState(nodes);
+export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
+    // const [visibleNodes, setVisibleNodes] = useState(nodes);
   // const [visibleEdges, setVisibleEdges] = useState(edges);
   // const [hiddenNodes, setHiddenNodes] = useState<Node[]>([]);
   // const [hiddenEdges, setHiddenEdges] = useState<Edge[]>([]);
-
+  
   const [allNodes, setAllNodes] = useState<Hidable<Node>[]>(
     nodes.map((node) => ({ ...node, isHidden: false })),
   );
@@ -86,5 +86,4 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
       </ul>
     </Simulation>
   );
-});
-Graph.displayName = 'Graph';
+};

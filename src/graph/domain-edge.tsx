@@ -7,7 +7,7 @@ export interface DomainEdgeProps {
   edge: Edge;
 }
 
-export const DomainEdge: React.FC<DomainEdgeProps> = React.memo(({ edge }) => {
+export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
   const line = useRef<SVGLineElement>();
   useEdgeMutation(edge.id, ({ x1, y1, x2, y2 }) => {
     if (line.current) {
@@ -19,5 +19,4 @@ export const DomainEdge: React.FC<DomainEdgeProps> = React.memo(({ edge }) => {
   });
 
   return <line ref={line} id={edge.id} className="edge" stroke="black" />;
-});
-DomainEdge.displayName = 'DomainEdge';
+};
