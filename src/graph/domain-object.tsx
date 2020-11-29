@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Node } from './types';
-import { NodeMutationSubscriber, useNodeMutation } from './use-simulation';
+import { useNodeMutation } from './simulation';
 
 export interface DomainObjectProps {
   node: Node;
   onHide: (id: string) => void;
-  subscriber: NodeMutationSubscriber;
 }
 
 export const DomainObject: React.FC<DomainObjectProps> = React.memo(
-  ({ node, onHide, subscriber }) => {
+  ({ node, onHide }) => {
     const g = useRef<SVGGElement>();
-    useNodeMutation(node.id, subscriber, ({ x, y }) => {
+    useNodeMutation(node.id, ({ x, y }) => {
       if (g.current) {
         g.current.setAttribute('transform', `translate(${x} ${y})`);
       }

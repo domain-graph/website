@@ -1,18 +1,12 @@
 import './index.less';
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { SvgCanvas } from '../svg-canvas';
 import { Edge, Node } from './types';
-import { useSimulation } from './use-simulation';
 import { DomainObject } from './domain-object';
 import { DomainEdge } from './domain-edge';
+import { Simulation } from './simulation';
 
 export interface GraphProps {
   width: number;
@@ -68,22 +62,16 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
     );
   }, []);
 
-  const { nodeSubscriber, edgeSubscriber } = useSimulation(
-    visibleNodes,
-    visibleEdges,
-  );
-
   return (
-    <>
+    <Simulation nodes={visibleNodes} edges={visibleEdges}>
       <SvgCanvas>
         {visibleEdges.map((edge) => (
-          <DomainEdge key={edge.id} edge={edge} subscriber={edgeSubscriber} />
+          <DomainEdge key={edge.id} edge={edge} />
         ))}
         {visibleNodes.map((node) => (
           <DomainObject
             key={node.id}
             onHide={() => setIsHidden(node.id, true)}
-            subscriber={nodeSubscriber}
             node={node}
           />
         ))}
@@ -96,7 +84,7 @@ export const Graph: React.FC<GraphProps> = React.memo(({ nodes, edges }) => {
           </li>
         ))}
       </ul>
-    </>
+    </Simulation>
   );
 });
 Graph.displayName = 'Graph';

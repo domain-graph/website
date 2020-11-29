@@ -1,67 +1,32 @@
-import {
+import React, {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import * as d3 from 'd3';
-import { Edge, Node } from './types';
 
-export function useSimulation(
-  nodes: Node[],
-  edges: Edge[],
-): React.Ref<SVGSVGElement> {
-  const [svg, setSvg] = useState<SVGSVGElement>();
-  const ref = useCallback((el: SVGSVGElement) => {
-    setSvg(el);
-function useStableClone<TItem, TClone extends TItem>(
-  items: TItem[],
-  compare: (a: TItem, b: TItem & Partial<Omit<TClone, keyof TItem>>) => boolean,
-): (TItem & Partial<Omit<TClone, keyof TItem>>)[] {
-  type C = TItem & Partial<Omit<TClone, keyof TItem>>;
+import { Edge, Node } from '../types';
+import { useStableClone } from '../../use-stable-clone';
 
-  const [clonedNodes, setClonedNodes] = useState<C[]>(
-    items.map((item) => ({ ...item })),
-  );
+const context = createContext<{
+  nodeSubscriber: NodeMutationSubscriber;
+  edgeSubscriber: EdgeMutationSubscriber;
+}>(null);
 
-  const compareFn = useRef(compare);
-  useEffect(() => {
-    compareFn.current = compare;
-  }, [compare]);
-
-  useEffect(() => {
-    setClonedNodes((prev) =>
-      items.map((nextNode) => {
-        const prevNode = prev.find((n) => compareFn.current(nextNode, n));
-
-        if (prevNode) {
-          for (const key of Object.keys(nextNode)) {
-            prevNode[key] = nextNode[key];
-          }
-          return prevNode;
-        } else {
-          return { ...nextNode };
-        }
-      }),
-    );
-  }, [items]);
-
-  return clonedNodes;
-}
-
-export function useNodeMutation(
-  nodeId: string,
-  subscribe: NodeMutationSubscriber,
-  onChange: NodeMutation,
-): void {
+export function useNodeMutation(nodeId: string, onChange: NodeMutation): void {
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
+  const subscribe = useContext(context)?.nodeSubscriber;
+
   useEffect(() => {
-    subscribe(nodeId, (change) => {
+    subscribe?.(nodeId, (change) => {
       requestAnimationFrame(() => {
         onChangeRef.current?.(change);
       });
@@ -76,18 +41,16 @@ export interface NodeMutation {
   (change: { x: number; y: number }): void;
 }
 
-export function useEdgeMutation(
-  edgeId: string,
-  subscribe: EdgeMutationSubscriber,
-  onChange: EdgeMutation,
-): void {
+export function useEdgeMutation(edgeId: string, onChange: EdgeMutation): void {
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
 
+  const subscribe = useContext(context)?.edgeSubscriber;
+
   useEffect(() => {
-    subscribe(edgeId, (change) => {
+    subscribe?.(edgeId, (change) => {
       requestAnimationFrame(() => {
         onChangeRef.current?.(change);
       });
@@ -102,7 +65,11 @@ export interface EdgeMutation {
   (change: { x1: number; y1: number; x2: number; y2: number }): void;
 }
 
-export function useSimulation(nodes: Node[], edges: Edge[]) {
+export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
+  nodes,
+  edges,
+  children,
+}) => {
   const [svg, setSvg] = useState(d3.select('svg'));
 
   useEffect(() => {
@@ -170,8 +137,12 @@ export function useSimulation(nodes: Node[], edges: Edge[]) {
     }
   }, [clonedNodes, clonedEdges, svg]);
 
-  return { nodeSubscriber, edgeSubscriber };
-}
+  return (
+    <context.Provider value={{ nodeSubscriber, edgeSubscriber }}>
+      {children}
+    </context.Provider>
+  );
+};
 
 function drag(simulation: d3.Simulation<Node, Edge>): any {
   function dragstarted(event) {
