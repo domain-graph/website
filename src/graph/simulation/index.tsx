@@ -118,7 +118,7 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
       const link = svg.selectAll('line.edge').data(clonedEdges);
 
       const node = svg
-        .selectAll('g.node')
+        .selectAll('g.simulation-node .handle')
         .data(clonedNodes, function (this: Element, d: any) {
           // eslint-disable-next-line no-invalid-this
           return d ? d.id : this.id;

@@ -1,0 +1,27 @@
+.c-domain-object {
+  .handle {
+    cursor: grab;
+    circle {
+      fill: red;
+      stroke: black;
+      stroke-width: 2;
+    }
+  }
+
+  &.dragging {
+    .handle {
+      cursor: grabbing;
+      circle {
+        fill: hotpink;
+      }
+    }
+  }
+
+  text {
+    font-family: sans-serif;
+    fill: black;
+    stroke: none;
+    text-anchor: middle;
+    alignment-baseline: middle;
+  }
+}
