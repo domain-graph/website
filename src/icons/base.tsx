@@ -13,11 +13,7 @@ export interface IconFactory {
 }
 
 export const icon: IconFactory = (displayName: string, children: ReactNode) => {
-  const component: React.FC<IconProps> = ({
-    size = 24,
-    color = '#000000',
-    strokeWidth = 2,
-  }) => (
+  const component: React.FC<IconProps> = ({ size = 24, strokeWidth = 2 }) => (
     <svg
       className={`c-icon c-icon-${displayName.toLowerCase()}`}
       xmlns="http://www.w3.org/2000/svg"

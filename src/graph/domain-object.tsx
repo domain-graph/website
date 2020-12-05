@@ -70,7 +70,7 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
           height="24"
           onClick={handleClickHide}
         >
-          <rect width="24" height="24" fill="green" />
+          <rect width="24" height="24" />
           <EyeOff size={24} />
         </RectButton>
 
@@ -81,7 +81,7 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
           height="24"
           onClick={handleClickPin}
         >
-          <rect width="24" height="24" fill="green" />
+          <rect width="24" height="24" />
           {node.fixed ? <Lock /> : <Unlock />}
         </RectButton>
       </g>

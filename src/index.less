@@ -1,9 +1,10 @@
-.page {
-  .substyle {
-    background: red;
-  }
-}
+@import './colors.less';
 
 body {
-  background: powderblue;
+  background: @color-background-primary;
+  color: @color-text-dark-primary;
+
+  text {
+    fill: @color-text-dark-primary;
+  }
 }

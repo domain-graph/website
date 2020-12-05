@@ -1,3 +1,5 @@
+@import '../colors.less';
+
 .outer {
   height: 100%;
   width: 100%;
@@ -31,10 +33,12 @@ ul.hidden-nodes {
   top: 0;
   right: 0;
   font-family: sans-serif;
-  color: black;
 }
 
-line.edge {
-  stroke: black;
-  stroke-width: 2;
+.edge {
+  path {
+    stroke: @color-border-dark-primary;
+    stroke-width: 2;
+    fill: none;
+  }
 }
