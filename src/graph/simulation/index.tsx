@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import * as d3 from 'd3';
 
-import { Edge, Node } from '../types';
+import { Edge, EdgeGroup, Node } from '../types';
 import { useStableClone } from '../../use-stable-clone';
 
 const context = createContext<{
@@ -68,7 +68,9 @@ export interface EdgeMutation {
   (change: { x1: number; y1: number; x2: number; y2: number }): void;
 }
 
-export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
+type SimulationNode = Node & d3.SimulationNodeDatum;
+
+export const Simulation: React.FC<{ nodes: Node[]; edges: EdgeGroup[] }> = ({
   nodes,
   edges,
   children,
@@ -79,7 +81,10 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
     setSvg(d3.select('svg'));
   }, []);
 
-  const clonedNodes = useStableClone(nodes, (a, b) => a.id === b.id);
+  const clonedNodes = useStableClone<Node, SimulationNode>(
+    nodes,
+    (a, b) => a.id === b.id,
+  );
   const clonedEdges = useStableClone(edges, (a, b) => a.id === b.id);
 
   const nodeMutations = useRef<{ [id: string]: NodeMutation }>({});
@@ -101,11 +106,11 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
   useLayoutEffect(() => {
     if (svg && clonedNodes) {
       const simulation = d3
-        .forceSimulation<Node, Edge>(clonedNodes)
+        .forceSimulation<SimulationNode, EdgeGroup>(clonedNodes)
         .force(
           'link',
           d3
-            .forceLink<Node, Edge>(clonedEdges)
+            .forceLink<SimulationNode, EdgeGroup>(clonedEdges)
             .id((d) => d.id)
             .distance(120),
         )
@@ -162,7 +167,7 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
 };
 
 function drag(
-  simulation: d3.Simulation<Node, Edge>,
+  simulation: d3.Simulation<SimulationNode, Edge>,
   subscribers: { [id: string]: NodeMutation },
 ): any {
   function dragstarted(event) {

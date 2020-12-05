@@ -3,7 +3,7 @@ import './index.less';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { SvgCanvas } from '../svg-canvas';
-import { Edge, Node } from './types';
+import { Edge, EdgeGroup, Node } from './types';
 import { DomainObject } from './domain-object';
 import { DomainEdge } from './domain-edge';
 import { Simulation } from './simulation';
@@ -16,20 +16,40 @@ export interface GraphProps {
   edges: Edge[];
 }
 
-type Hidable<T> = T & { isHidden: boolean };
-
 export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
-  // const [visibleNodes, setVisibleNodes] = useState(nodes);
-  // const [visibleEdges, setVisibleEdges] = useState(edges);
-  // const [hiddenNodes, setHiddenNodes] = useState<Node[]>([]);
-  // const [hiddenEdges, setHiddenEdges] = useState<Edge[]>([]);
-
-  const [allNodes, setAllNodes] = useState<Hidable<Node>[]>(
+  const [allNodes, setAllNodes] = useState<Node[]>(
     nodes.map((node) => ({ ...node, isHidden: false })),
   );
-  const [allEdges, setAllEdges] = useState<Hidable<Edge>[]>(
-    edges.map((edge) => ({ ...edge, isHidden: false })),
-  );
+
+  const allEdges: EdgeGroup[] = useMemo(() => {
+    const index = edges.reduce<{ [id: string]: EdgeGroup }>((acc, edge) => {
+      const { id, source, target, ...rest } = edge;
+
+      const forwardId = `${source}>${target}`;
+      const reverseId = `${target}>${source}`;
+      const group = acc[forwardId] || acc[reverseId];
+
+      if (group) {
+        const e: EdgeGroup['edges'][number] = rest;
+        if (group.id === reverseId) e.reverse = true;
+        return { ...acc, [group.id]: { ...group, edges: [...group.edges, e] } };
+      } else {
+        const e: EdgeGroup['edges'][number] = rest;
+        const g: EdgeGroup = {
+          id: forwardId,
+          source,
+          target,
+          edges: [e],
+        };
+        return {
+          ...acc,
+          [forwardId]: g,
+        };
+      }
+    }, {});
+
+    return Object.keys(index).map((key) => index[key]);
+  }, [edges]);
 
   const visibleNodes = useMemo(
     () => allNodes.filter((node) => !node.isHidden),

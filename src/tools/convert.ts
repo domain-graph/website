@@ -56,6 +56,7 @@ const links = types
       name: field.name,
       source: type.name,
       target: field.type.type.name,
+      plurality: field.type.plurality,
     })),
   )
   .reduce((a, b) => a.concat(b), [])
@@ -65,8 +66,8 @@ const links = types
       nodes.some((n) => n.id === link.target),
   );
 
-type Node = typeof nodes[number];
-type Edge = typeof links[number];
+export type Node = typeof nodes[number];
+export type Edge = typeof links[number];
 
 function traverse(
   name: string,

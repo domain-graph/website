@@ -1,16 +1,25 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import './domain-edge.less';
 
-import { Edge } from './types';
+import React, { useLayoutEffect, useRef } from 'react';
+
+import { EdgeGroup } from './types';
 import { useEdgeMutation } from './simulation';
 
+import ChevronsUp from '../icons/chevrons-up';
+import ChevronsDown from '../icons/chevrons-down';
+import ChevronUp from '../icons/chevron-up';
+import ChevronDown from '../icons/chevron-down';
+
 export interface DomainEdgeProps {
-  edge: Edge;
+  edge: EdgeGroup;
 }
+
+const handleSize = 20;
 
 export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
   const g = useRef<SVGGElement>();
   const paths = useRef<SVGPathElement[]>();
-  const handles = useRef<SVGCircleElement[]>();
+  const handles = useRef<SVGGElement[]>();
 
   useLayoutEffect(() => {
     paths.current = [];
@@ -21,8 +30,8 @@ export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
 
       if (item.tagName === 'path') {
         paths.current.push(g.current.children.item(i) as SVGPathElement);
-      } else if (item.tagName === 'circle') {
-        handles.current.push(g.current.children.item(i) as SVGCircleElement);
+      } else if (item.tagName === 'g' && item.classList.contains('handle')) {
+        handles.current.push(g.current.children.item(i) as SVGGElement);
       }
     }
   }, [edge]);
@@ -30,7 +39,8 @@ export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
   useEdgeMutation(edge.id, ({ x1, y1, x2, y2 }) => {
     if (g.current && paths.current?.length) {
       const count = paths.current.length;
-      const midpoints = getMidPoints(count, 30, x1, y1, x2, y2);
+      const midpoints = getMidPoints(count, x1, y1, x2, y2);
+      const angle = (Math.atan2(x2 - x1, y1 - y2) * 180) / Math.PI;
 
       midpoints.forEach(([xa, ya, x, y], i) => {
         paths.current[i].setAttribute(
@@ -38,34 +48,50 @@ export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
           `M${x1} ${y1} Q${xa} ${ya} ${x2} ${y2}`,
         );
 
-        handles.current[i].setAttribute('cx', `${x}`);
-        handles.current[i].setAttribute('cy', `${y}`);
+        handles.current[i].setAttribute(
+          'transform',
+          `translate(${x} ${y})rotate(${angle})translate(${-handleSize / 2} ${
+            -handleSize / 2
+          })`,
+        );
       });
     }
   });
 
   return (
-    <g id={edge.id} className="edge" ref={g}>
-      <path />
-      <circle r="3" />
-      <path />
-      <circle r="3" />
-      <path />
-      <circle r="3" />
-      <path />
-      <circle r="3" />
+    <g id={edge.id} className="c-domain-edge edge" ref={g}>
+      {edge.edges.map((e) => (
+        <React.Fragment key={e.name}>
+          <path />
+          <g className="handle">
+            <rect width={handleSize} height={handleSize} />
+            {e.plurality === 'array' ? (
+              e.reverse ? (
+                <ChevronsDown size={handleSize} />
+              ) : (
+                <ChevronsUp size={handleSize} />
+              )
+            ) : e.reverse ? (
+              <ChevronDown size={handleSize} />
+            ) : (
+              <ChevronUp size={handleSize} />
+            )}
+          </g>
+        </React.Fragment>
+      ))}
     </g>
   );
 };
 
 function getMidPoints(
   count: number,
-  spread: number,
   x1: number,
   y1: number,
   x2: number,
   y2: number,
 ): [number, number, number, number][] {
+  const spread = handleSize * 2.45;
+
   const dx = x2 - x1;
   const dy = y2 - y1;
 

@@ -1,13 +1,12 @@
-import * as d3 from 'd3';
+import { Node as RawNode, Edge as RawEdge } from '../tools/convert';
 
-export interface Node extends d3.SimulationNodeDatum {
-  id: string;
+export interface Node extends RawNode {
   fixed?: boolean;
+  isHidden?: boolean;
 }
 
-export interface Edge {
-  id: string;
-  name: string;
-  source: string;
-  target: string;
+export type Edge = RawEdge;
+
+export interface EdgeGroup extends Pick<RawEdge, 'id' | 'source' | 'target'> {
+  edges: (Omit<RawEdge, 'id' | 'source' | 'target'> & { reverse?: true })[];
 }
