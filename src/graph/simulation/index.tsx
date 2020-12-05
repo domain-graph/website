@@ -115,7 +115,7 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: Edge[] }> = ({
       // TODO: consider this when we can plumn tick XOR drag event data
       // if (!clonedNodes.some((n) => !n.fixed)) simulation.stop();
 
-      const link = svg.selectAll('line.edge').data(clonedEdges);
+      const link = svg.selectAll('g.edge').data(clonedEdges);
 
       const node = svg
         .selectAll('g.simulation-node .handle')
