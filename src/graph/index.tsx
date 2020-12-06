@@ -91,6 +91,37 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
     );
   }, []);
 
+  const handleExpand = useCallback(
+    (nodeId: string) => {
+      console.log('expand', nodeId);
+      setAllNodes((prev) => {
+        const nodeIds = allEdges
+          .filter((edge) => edge.source === nodeId || edge.target === nodeId)
+          .reduce<Set<string>>((acc, edge) => {
+            if (edge.source !== nodeId) acc.add(edge.source);
+            if (edge.target !== nodeId) acc.add(edge.target);
+            return acc;
+          }, new Set());
+
+        if (
+          nodeIds.size &&
+          prev.some((node) => nodeIds.has(node.id) && node.isHidden)
+        ) {
+          return prev.some((node) => nodeIds.has(node.id))
+            ? prev.map((node) =>
+                nodeIds.has(node.id) && node.isHidden
+                  ? { ...node, isHidden: false, fixed: false }
+                  : node,
+              )
+            : prev;
+        } else {
+          return prev;
+        }
+      });
+    },
+    [allEdges],
+  );
+
   return (
     <Simulation nodes={visibleNodes} edges={visibleEdges}>
       <SvgCanvas>
@@ -106,6 +137,7 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
               onPin={(id) => setIsPinned(id, true)}
               onUnpin={(id) => setIsPinned(id, false)}
               onHide={(id) => setIsHidden(id, true)}
+              onExpand={handleExpand}
               node={node}
             />
           ))}

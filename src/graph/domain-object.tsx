@@ -8,6 +8,7 @@ import EyeOff from '../icons/eye-off';
 import Lock from '../icons/lock';
 import Unlock from '../icons/unlock';
 import Info from '../icons/info';
+import Graph from '../icons/graph';
 import { CircleButton, RectButton } from '../svg-button';
 
 export interface DomainObjectProps {
@@ -15,6 +16,7 @@ export interface DomainObjectProps {
   onPin: (id: string) => void;
   onUnpin: (id: string) => void;
   onHide: (id: string) => void;
+  onExpand: (id: string) => void;
 }
 
 export const DomainObject: React.FC<DomainObjectProps> = ({
@@ -22,6 +24,7 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
   onPin,
   onUnpin,
   onHide,
+  onExpand,
 }) => {
   const handle = useRef<SVGGElement>();
   const controls = useRef<SVGGElement>();
@@ -73,14 +76,14 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
       <g ref={controls} className={`controls`}>
         <g className={`${showControls ? 'visible' : 'hidden'} control-wheel`}>
           <circle r="50" />
-          <MenuItem index={0} of={3} isVisible={showControls}>
-            <CircleButton r={16} onClick={handleClickHide}>
+          <MenuItem index={0} of={4} isVisible={showControls}>
+            <CircleButton r={14} onClick={handleClickHide}>
               <EyeOff size={16} x={-8} y={-8} />
             </CircleButton>
           </MenuItem>
 
-          <MenuItem index={1} of={3} isVisible={showControls}>
-            <CircleButton r={18} onClick={handleClickPin}>
+          <MenuItem index={1} of={4} isVisible={showControls}>
+            <CircleButton r={14} onClick={handleClickPin}>
               {node.fixed ? (
                 <Lock size={16} x={-8} y={-8} />
               ) : (
@@ -89,9 +92,15 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
             </CircleButton>
           </MenuItem>
 
-          <MenuItem index={2} of={3} isVisible={showControls}>
-            <CircleButton r={16}>
+          <MenuItem index={2} of={4} isVisible={showControls}>
+            <CircleButton r={14}>
               <Info size={16} x={-8} y={-8} />
+            </CircleButton>
+          </MenuItem>
+
+          <MenuItem index={3} of={4} isVisible={showControls}>
+            <CircleButton r={14} onClick={() => onExpand(node.id)}>
+              <Graph size={16} x={-8} y={-8} />
             </CircleButton>
           </MenuItem>
         </g>
@@ -110,8 +119,8 @@ const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
   children,
   isVisible,
 }) => {
-  const spread = 45;
-  const radius = 55;
+  const spread = 37;
+  const radius = 52;
   const angle = ((of - 1) / 2 - index) * spread;
 
   const g = useRef<SVGGElement>();
@@ -119,7 +128,7 @@ const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
   useLayoutEffect(() => {
     if (isVisible) {
       tween({
-        delay: index * 25,
+        // delay: index * (75 / of),
         duration: 75,
         easing: linear,
         tick: (v) => {
@@ -132,7 +141,7 @@ const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
       });
     } else if (g.current.transform?.baseVal?.numberOfItems) {
       tween({
-        delay: index * 25,
+        // delay: index * 25,
         duration: 75,
         easing: linear,
         tick: (v) => {
