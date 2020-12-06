@@ -3,9 +3,9 @@ import './index.less';
 import React from 'react';
 
 export interface ButtonProps {
-  cx: number;
-  cy: number;
-  r: number;
+  cx?: React.ReactText;
+  cy?: React.ReactText;
+  r: React.ReactText;
   onClick?(event: React.MouseEvent<SVGCircleElement, MouseEvent>): void;
   className?: string;
 }
@@ -21,13 +21,14 @@ export const CircleButton: React.FC<ButtonProps> = ({
   return (
     <g
       className={`c-svg-button ${className}`.trim()}
-      transform={`translate(${cx - r} ${cy - r})`}
+      transform={`translate(${cx} ${cy})`}
     >
+      <circle className="background" cx={cx} cy={cy} r={r}></circle>
       {children}
       <circle
         className="click-target"
-        cx={r}
-        cy={r}
+        cx={cx}
+        cy={cy}
         r={r}
         fill="transparent"
         onClick={onClick}

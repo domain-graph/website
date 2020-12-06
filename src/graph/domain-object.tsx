@@ -7,7 +7,8 @@ import { useNodeMutation } from './simulation';
 import EyeOff from '../icons/eye-off';
 import Lock from '../icons/lock';
 import Unlock from '../icons/unlock';
-import { RectButton } from '../svg-button';
+import Info from '../icons/info';
+import { CircleButton, RectButton } from '../svg-button';
 
 export interface DomainObjectProps {
   node: Node;
@@ -52,39 +53,69 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
     setIsPinned(!node.fixed);
   }, [node, onPin, onUnpin]);
 
+  const [showControls, setShowControls] = useState<boolean | null>(null);
+
+  const handleMouseEnter = useCallback(() => {
+    setShowControls(true);
+  }, []);
+  const handleMouseLeave = useCallback(() => {
+    setShowControls(false);
+  }, []);
+
   return (
     <g
       className={`c-domain-object simulation-node${
         isDragging ? ' dragging' : ''
       }${isPinned ? ' pinned' : ''}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
+      <g ref={controls} className={`controls`}>
+        <g className={`${showControls ? 'visible' : 'hidden'} control-wheel`}>
+          <circle r="50" />
+          <MenuItem index={0} of={3}>
+            <CircleButton r={16} onClick={handleClickHide}>
+              <EyeOff size={16} x="-8" y="-8" />
+            </CircleButton>
+          </MenuItem>
+
+          <MenuItem index={1} of={3}>
+            <CircleButton r={18} onClick={handleClickPin}>
+              {node.fixed ? (
+                <Lock size={16} x="-8" y="-8" />
+              ) : (
+                <Unlock size={16} x="-8" y="-8" />
+              )}
+            </CircleButton>
+          </MenuItem>
+
+          <MenuItem index={2} of={3}>
+            <CircleButton r={16}>
+              <Info size={16} x="-8" y="-8" />
+            </CircleButton>
+          </MenuItem>
+        </g>
+      </g>
       <g ref={handle} className="handle" id={node.id}>
         <circle r="30" />
         <text>{node.id}</text>
       </g>
-      <g ref={controls} className="controls">
-        <RectButton
-          x="15"
-          y="-40"
-          width="24"
-          height="24"
-          onClick={handleClickHide}
-        >
-          <rect width="24" height="24" />
-          <EyeOff size={24} />
-        </RectButton>
+    </g>
+  );
+};
 
-        <RectButton
-          x="-30"
-          y="-40"
-          width="24"
-          height="24"
-          onClick={handleClickPin}
-        >
-          <rect width="24" height="24" />
-          {node.fixed ? <Lock /> : <Unlock />}
-        </RectButton>
-      </g>
+const MenuItem: React.FC<{ index: number; of: number }> = ({
+  index,
+  of,
+  children,
+}) => {
+  const spread = 45;
+  const radius = 55;
+  const a = ((of - 1) / 2 - index) * spread;
+
+  return (
+    <g transform={`rotate(${a}) translate(0 ${-radius}) rotate(${-a})`}>
+      {children}
     </g>
   );
 };

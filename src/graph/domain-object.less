@@ -28,12 +28,19 @@
       fill: transparent;
     }
 
-    .c-icon {
-      stroke: @color-border-light-primary;
-    }
+    .control-wheel {
+      fill: transparent;
+      &.hidden {
+        transform: scale(0);
+      }
 
-    rect {
-      fill: @color-brand-secondary;
+      &.visible {
+        transform: scale(1);
+      }
+
+      .c-icon {
+        stroke: @color-border-dark-primary;
+      }
     }
   }
 }
