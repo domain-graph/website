@@ -1,6 +1,6 @@
 import './domain-object.less';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { Node } from './types';
 import { useNodeMutation } from './simulation';
@@ -73,25 +73,25 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
       <g ref={controls} className={`controls`}>
         <g className={`${showControls ? 'visible' : 'hidden'} control-wheel`}>
           <circle r="50" />
-          <MenuItem index={0} of={3}>
+          <MenuItem index={0} of={3} isVisible={showControls}>
             <CircleButton r={16} onClick={handleClickHide}>
-              <EyeOff size={16} x="-8" y="-8" />
+              <EyeOff size={16} x={-8} y={-8} />
             </CircleButton>
           </MenuItem>
 
-          <MenuItem index={1} of={3}>
+          <MenuItem index={1} of={3} isVisible={showControls}>
             <CircleButton r={18} onClick={handleClickPin}>
               {node.fixed ? (
-                <Lock size={16} x="-8" y="-8" />
+                <Lock size={16} x={-8} y={-8} />
               ) : (
-                <Unlock size={16} x="-8" y="-8" />
+                <Unlock size={16} x={-8} y={-8} />
               )}
             </CircleButton>
           </MenuItem>
 
-          <MenuItem index={2} of={3}>
+          <MenuItem index={2} of={3} isVisible={showControls}>
             <CircleButton r={16}>
-              <Info size={16} x="-8" y="-8" />
+              <Info size={16} x={-8} y={-8} />
             </CircleButton>
           </MenuItem>
         </g>
@@ -104,18 +104,88 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
   );
 };
 
-const MenuItem: React.FC<{ index: number; of: number }> = ({
+const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
   index,
   of,
   children,
+  isVisible,
 }) => {
   const spread = 45;
   const radius = 55;
-  const a = ((of - 1) / 2 - index) * spread;
+  const angle = ((of - 1) / 2 - index) * spread;
 
-  return (
-    <g transform={`rotate(${a}) translate(0 ${-radius}) rotate(${-a})`}>
-      {children}
-    </g>
-  );
+  const g = useRef<SVGGElement>();
+
+  useLayoutEffect(() => {
+    if (isVisible) {
+      tween({
+        delay: index * 25,
+        duration: 75,
+        easing: linear,
+        tick: (r) => {
+          g.current.setAttribute(
+            'transform',
+            `rotate(${angle}) translate(0 ${-r * radius}) rotate(${-angle})`,
+          );
+        },
+      });
+    } else if (g.current.transform?.baseVal?.numberOfItems) {
+      tween({
+        delay: index * 25,
+        duration: 75,
+        easing: linear,
+        tick: (r) => {
+          g.current.setAttribute(
+            'transform',
+            `rotate(${angle}) translate(0 ${
+              -(1 - r) * radius
+            }) rotate(${-angle})`,
+          );
+        },
+      });
+    }
+  }, [isVisible, angle, index]);
+
+  return <g ref={g}>{children}</g>;
 };
+
+interface TweenOptions {
+  delay?: number;
+  duration: number;
+  easing: (t: number) => number;
+  tick: (value: number) => void;
+  done?: () => void;
+}
+
+function tween({
+  delay = 0,
+  duration,
+  tick,
+  done,
+  easing,
+}: TweenOptions): void {
+  setTimeout(() => {
+    const start = performance.now();
+
+    const doit = () => {
+      requestAnimationFrame(() => {
+        const now = performance.now();
+
+        if (now - start > duration) {
+          tick(1);
+          done?.();
+        } else {
+          const t = (now - start) / duration;
+          tick(easing(t));
+          doit();
+        }
+      });
+    };
+    doit();
+  }, delay);
+}
+
+// TODO: create non-linear functions
+function linear(t: number) {
+  return t;
+}
