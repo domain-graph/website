@@ -62,7 +62,7 @@ export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
     <g id={edge.id} className="c-domain-edge edge" ref={g}>
       {edge.edges.map((e) => (
         <React.Fragment key={e.name}>
-          <path />
+          <path className={e.optional ? 'optional' : 'required'} />
           <g className="handle">
             <rect width={handleSize} height={handleSize} />
             {e.plurality === 'array' ? (

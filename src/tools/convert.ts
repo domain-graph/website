@@ -57,6 +57,7 @@ const links = types
       source: type.name,
       target: field.type.type.name,
       plurality: field.type.plurality,
+      optional: field.type.optional,
     })),
   )
   .reduce((a, b) => a.concat(b), [])
@@ -129,10 +130,13 @@ function getFieldType(
 ): {
   plurality: 'single' | 'array';
   type: FieldType;
+  optional: boolean;
 } {
   let t = field.type;
 
   let foundList = false;
+
+  const optional = t.kind !== 'NON_NULL';
 
   do {
     switch (t.kind) {
@@ -144,7 +148,7 @@ function getFieldType(
         t = t.ofType;
         break;
       default:
-        return { plurality: foundList ? 'array' : 'single', type: t };
+        return { plurality: foundList ? 'array' : 'single', type: t, optional };
     }
   } while (true);
 }
