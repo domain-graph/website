@@ -122,11 +122,12 @@ const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
         delay: index * 25,
         duration: 75,
         easing: linear,
-        tick: (r) => {
+        tick: (v) => {
           g.current.setAttribute(
             'transform',
-            `rotate(${angle}) translate(0 ${-r * radius}) rotate(${-angle})`,
+            `rotate(${angle}) translate(0 ${-v * radius}) rotate(${-angle})`,
           );
+          g.current.setAttribute('opacity', `${v}`);
         },
       });
     } else if (g.current.transform?.baseVal?.numberOfItems) {
@@ -134,13 +135,14 @@ const MenuItem: React.FC<{ index: number; of: number; isVisible: boolean }> = ({
         delay: index * 25,
         duration: 75,
         easing: linear,
-        tick: (r) => {
+        tick: (v) => {
           g.current.setAttribute(
             'transform',
             `rotate(${angle}) translate(0 ${
-              -(1 - r) * radius
+              -(1 - v) * radius
             }) rotate(${-angle})`,
           );
+          g.current.setAttribute('opacity', `${1 - v}`);
         },
       });
     }
