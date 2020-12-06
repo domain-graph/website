@@ -115,7 +115,6 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: EdgeGroup[] }> = ({
             .distance(120),
         )
         .force('charge', d3.forceManyBody().strength(-500).distanceMax(150))
-        .force('center', d3.forceCenter(0, 0).strength(1));
 
       // TODO: consider this when we can plumn tick XOR drag event data
       // if (!clonedNodes.some((n) => !n.fixed)) simulation.stop();
