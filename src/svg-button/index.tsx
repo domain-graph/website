@@ -21,7 +21,7 @@ export const CircleButton: React.FC<ButtonProps> = ({
   return (
     <g
       className={`c-svg-button ${className}`.trim()}
-      transform={`translate(${cx} ${cy})`}
+      transform={`translate(${cx || 0} ${cy || 0})`}
     >
       <circle className="background" cx={cx} cy={cy} r={r}></circle>
       {children}
