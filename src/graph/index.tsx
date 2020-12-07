@@ -8,6 +8,7 @@ import { DomainObject } from './domain-object';
 import { DomainEdge } from './domain-edge';
 import { Simulation } from './simulation';
 import Eye from '../icons/eye';
+import { NodePicker } from './node-picker';
 
 export interface GraphProps {
   width: number;
@@ -18,8 +19,18 @@ export interface GraphProps {
 
 export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
   const [allNodes, setAllNodes] = useState<Node[]>(
-    nodes.map((node) => ({ ...node, isHidden: false })),
+    nodes.map((node) => ({ ...node, isHidden: true })),
   );
+
+  const handleHideAll = useCallback(() => {
+    setAllNodes((prev) => prev.map((node) => ({ ...node, isHidden: true })));
+  }, []);
+
+  const handleHideUnpinned = useCallback(() => {
+    setAllNodes((prev) =>
+      prev.map((node) => (node.fixed ? node : { ...node, isHidden: true })),
+    );
+  }, []);
 
   const allEdges: EdgeGroup[] = useMemo(() => {
     const index = edges.reduce<{ [id: string]: EdgeGroup }>((acc, edge) => {
@@ -64,6 +75,8 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
     () =>
       allEdges.filter(
         (edge) =>
+          // TODO: support self-reference
+          edge.source !== edge.target &&
           allNodes.find((node) => node.id === edge.source)?.isHidden ===
             false &&
           allNodes.find((node) => node.id === edge.target)?.isHidden === false,
@@ -143,16 +156,19 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
           ))}
         </g>
       </SvgCanvas>
-      <ul className="hidden-nodes">
-        {hiddenNodes.map((node) => (
-          <li key={node.id}>
-            <button onClick={() => setIsHidden(node.id, false)}>
-              <Eye />
-            </button>
-            <span>{node.id}</span>
-          </li>
-        ))}
-      </ul>
+      <NodePicker
+        nodes={allNodes}
+        onShow={(id) => {
+          console.log('show', id);
+          setIsHidden(id, false);
+        }}
+        onHide={(id) => {
+          console.log('hide', id);
+          setIsHidden(id, true);
+        }}
+        onHideAll={handleHideAll}
+        onHideUnpinned={handleHideUnpinned}
+      />
     </Simulation>
   );
 };

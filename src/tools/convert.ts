@@ -70,51 +70,10 @@ const links = types
 export type Node = typeof nodes[number];
 export type Edge = typeof links[number];
 
-function traverse(
-  name: string,
-  depth: number,
-  stop: string[] = [],
-): { nodes: Node[]; edges: Edge[] } {
-  const node = nodes.find((n) => n.id === name);
-
-  console.log(node);
-
-  const foundNodes = new Set<Node>([node]);
-  const foundEdges = new Set<Edge>();
-
-  let startNodes = new Set<Node>([node]);
-
-  for (let i = 0; i < depth; i++) {
-    console.log({ i, startNodes });
-    const startFrom = Array.from(startNodes.values());
-    startNodes = new Set<Node>();
-
-    for (const s of startFrom) {
-      const edges = links.filter(
-        (link) => link.source === s.id || link.target === s.id,
-      );
-      console.log({ edges });
-      edges.forEach((edge) => foundEdges.add(edge));
-
-      const xxx = nodes.filter(
-        (n) =>
-          !foundNodes.has(n) &&
-          edges.some((e) => e.source === n.id || e.target === n.id),
-      );
-      xxx.forEach((n) => {
-        foundNodes.add(n);
-        if (!stop.includes(n.id)) startNodes.add(n);
-      });
-    }
-  }
-
-  return {
-    nodes: Array.from(foundNodes.values()),
-    edges: Array.from(foundEdges.values()),
-  };
-}
-
-const myData = traverse('ProjectTrackingEmployee', 4, ['Employee', 'Company']);
+const myData = {
+  nodes,
+  edges: links,
+};
 
 writeFileSync(
   join('data', 'nodes.json'),
