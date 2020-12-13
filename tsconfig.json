@@ -9,7 +9,8 @@
     "declaration": true,
     "jsx": "react",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "strictNullChecks": true
   },
   "include": ["src/**/*"],
   "exclude": []

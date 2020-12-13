@@ -17,21 +17,23 @@ export interface DomainEdgeProps {
 const handleSize = 20;
 
 export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
-  const g = useRef<SVGGElement>();
-  const paths = useRef<SVGPathElement[]>();
-  const handles = useRef<SVGGElement[]>();
+  const g = useRef<SVGGElement>(null);
+  const paths = useRef<SVGPathElement[]>([]);
+  const handles = useRef<SVGGElement[]>([]);
 
   useLayoutEffect(() => {
     paths.current = [];
     handles.current = [];
 
-    for (let i = 0; i < g.current.children.length; i++) {
-      const item = g.current.children.item(i);
+    if (g.current) {
+      for (let i = 0; i < g.current.children.length; i++) {
+        const item = g.current.children.item(i);
 
-      if (item.tagName === 'path') {
-        paths.current.push(g.current.children.item(i) as SVGPathElement);
-      } else if (item.tagName === 'g' && item.classList.contains('handle')) {
-        handles.current.push(g.current.children.item(i) as SVGGElement);
+        if (item?.tagName === 'path') {
+          paths.current.push(g.current.children.item(i) as SVGPathElement);
+        } else if (item?.tagName === 'g' && item.classList.contains('handle')) {
+          handles.current.push(g.current.children.item(i) as SVGGElement);
+        }
       }
     }
   }, [edge]);
@@ -100,7 +102,7 @@ function getMidPoints(
 
   const l = Math.sqrt(dx * dx + dy * dy);
 
-  const midpoints = [];
+  const midpoints: [number, number, number, number][] = [];
 
   for (let i = 0; i < count; i++) {
     const r = (((count - 1) / 2 - i) * spread) / l;

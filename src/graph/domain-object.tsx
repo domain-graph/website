@@ -27,8 +27,8 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
   onHide,
   onExpand,
 }) => {
-  const handle = useRef<SVGGElement>();
-  const controls = useRef<SVGGElement>();
+  const handle = useRef<SVGGElement>(null);
+  const controls = useRef<SVGGElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isPinned, setIsPinned] = useState(false);

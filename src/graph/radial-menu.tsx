@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
 
 export interface RadialMenuProps {
-  isVisible: boolean;
+  isVisible: boolean | null;
   radius: number;
   spread: number;
   margin: number;
@@ -45,20 +45,20 @@ const MenuItem: React.FC<MenuItemProps> = ({
   children,
   isVisible,
 }) => {
-  const g = useRef<SVGGElement>();
+  const g = useRef<SVGGElement>(null);
 
   useLayoutEffect(() => {
     const angle = getAngle(count, index, spread);
     const tick = (v: number) => {
-      g.current.setAttribute(
+      g.current?.setAttribute(
         'transform',
         `rotate(${angle}) translate(0 ${-v * radius}) rotate(${-angle})`,
       );
-      g.current.setAttribute('opacity', `${v}`);
+      g.current?.setAttribute('opacity', `${v}`);
     };
     if (isVisible) {
       enter({ tick });
-    } else if (g.current.transform?.baseVal?.numberOfItems) {
+    } else if (g.current?.transform?.baseVal?.numberOfItems) {
       exit({ tick });
     }
   }, [isVisible, count, index, radius, spread]);
@@ -74,17 +74,17 @@ const Margin: React.FC<MenuItemProps> = ({
   isVisible,
   margin,
 }) => {
-  const line = useRef<SVGLineElement>();
+  const line = useRef<SVGLineElement>(null);
 
   useLayoutEffect(() => {
     const angle = getAngle(count, index, spread);
     const tick = (v: number) => {
-      line.current.setAttribute('y2', `${-v * radius}`);
-      line.current.setAttribute('transform', `rotate(${angle})`);
+      line.current?.setAttribute('y2', `${-v * radius}`);
+      line.current?.setAttribute('transform', `rotate(${angle})`);
     };
     if (isVisible) {
       enter({ tick });
-    } else if (line.current.transform?.baseVal?.numberOfItems) {
+    } else if (line.current?.transform?.baseVal?.numberOfItems) {
       exit({ tick });
     }
   }, [isVisible, count, index, radius, spread]);

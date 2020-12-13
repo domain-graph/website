@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 export function useResize(
-  element: HTMLElement,
+  element: HTMLElement | null,
   onSize: (values: { width: number; height: number }) => void,
 ) {
   const callback = useRef<(values: { width: number; height: number }) => void>(
@@ -28,7 +28,7 @@ export function useResize(
 
       observer.current.observe(element);
       return () => {
-        observer.current.unobserve(element);
+        observer.current?.unobserve(element);
       };
     } else {
       return undefined;

@@ -10,9 +10,9 @@ export interface SvgCanvasProps {
 }
 
 interface State {
-  wrapper: HTMLDivElement;
-  canvas: SVGSVGElement;
-  transformGroup: SVGGElement;
+  wrapper: HTMLDivElement | null;
+  canvas: SVGSVGElement | null;
+  transformGroup: SVGGElement | null;
   postX: number;
   postY: number;
   preX: number;
@@ -40,7 +40,7 @@ export const SvgCanvas = forwardRef<
     height: 150,
   });
 
-  const [wrapper, setWrapper] = useState<HTMLDivElement>(null);
+  const [wrapper, setWrapper] = useState<HTMLDivElement | null>(null);
   const wrapperRef = useCallback(
     (element: HTMLDivElement) => {
       setWrapper(element);
@@ -57,7 +57,7 @@ export const SvgCanvas = forwardRef<
     [forwardedRef],
   );
 
-  const [canvas, setCanvas] = useState<SVGSVGElement>(null);
+  const [canvas, setCanvas] = useState<SVGSVGElement | null>(null);
   const canvasRef = useCallback((element: SVGSVGElement) => {
     setCanvas(element);
     state.current.canvas = element;
@@ -71,15 +71,18 @@ export const SvgCanvas = forwardRef<
     requestAnimationFrame(() => {
       const { width, height, postX, postY, preX, preY, scale } = state.current;
 
-      state.current.canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      state.current.canvas.setAttribute('width', `${width}px`);
-      state.current.canvas.setAttribute('height', `${height}px`);
+      state.current.canvas?.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      state.current.canvas?.setAttribute('width', `${width}px`);
+      state.current.canvas?.setAttribute('height', `${height}px`);
 
       const pre = `translate(${width / 2 + preX} ${height / 2 + preY})`;
       const zoom = `scale(${round1000(scale)})`;
       const post = `translate(${-round10(postX)} ${-round10(postY)})`;
 
-      state.current.transformGroup.setAttribute('transform', pre + zoom + post);
+      state.current.transformGroup?.setAttribute(
+        'transform',
+        pre + zoom + post,
+      );
     });
   });
 

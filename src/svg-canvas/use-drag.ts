@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 interface DragState {
-  element: HTMLElement | SVGElement;
+  element: HTMLElement | SVGElement | null;
   beginX: number;
   beginY: number;
   currentX: number;
@@ -34,7 +34,7 @@ export interface EndValues {
 }
 
 export function useDrag(
-  element: HTMLElement | SVGElement,
+  element: HTMLElement | SVGElement | null,
   options?: DragOptions,
 ) {
   const state = useRef<DragState>({
@@ -81,7 +81,7 @@ export function useDrag(
     });
 
     document.removeEventListener('mouseup', handleMouseUp.current);
-    state.current.element.removeEventListener(
+    state.current.element?.removeEventListener(
       'mousemove',
       handleMouseMove.current,
     );
@@ -97,7 +97,7 @@ export function useDrag(
       callbacks.current.onBegin?.({ beginX: e.offsetX, beginY: e.offsetY });
 
       document.addEventListener('mouseup', handleMouseUp.current);
-      state.current.element.addEventListener(
+      state.current.element?.addEventListener(
         'mousemove',
         handleMouseMove.current,
       );

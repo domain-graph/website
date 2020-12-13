@@ -15,7 +15,7 @@ export interface ZoomValues {
 }
 
 interface State {
-  element: HTMLElement | SVGElement;
+  element: HTMLElement | SVGElement | null;
   max: number;
   min: number;
   speed: number;
@@ -24,15 +24,20 @@ interface State {
 }
 
 export function useZoom(
-  element: HTMLElement | SVGElement,
+  element: HTMLElement | SVGElement | null,
   onZoom: (values: ZoomValues) => void,
   options?: ZoomOptions,
 ) {
+  const initialMax = typeof options?.max === 'number' ? options.max : 4;
+  const initialMin = typeof options?.min === 'number' ? options.min : 0.125;
+  const initialSpeed =
+    typeof options?.speed === 'number' ? options.speed : 0.005;
+
   const state = useRef<State>({
     element,
-    max: typeof options?.max === 'number' ? options?.max : 4,
-    min: typeof options?.min === 'number' ? options?.max : 0.125,
-    speed: typeof options?.speed === 'number' ? options?.max : 0.005,
+    max: initialMax,
+    min: initialMin,
+    speed: initialSpeed,
     value: 1,
     onZoom,
   });
@@ -42,7 +47,7 @@ export function useZoom(
   useEffect(() => {
     state.current.max = typeof max === 'number' ? max : 4;
     state.current.min = typeof min === 'number' ? min : 0.125;
-    state.current.speed = typeof min === 'number' ? speed : 0.005;
+    state.current.speed = typeof speed === 'number' ? speed : 0.005;
     state.current.onZoom = onZoom;
 
     // TODO check that current value is not out of bounds

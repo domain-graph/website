@@ -12,10 +12,17 @@ import * as d3 from 'd3';
 import { Edge, EdgeGroup, Node } from '../types';
 import { useStableClone } from '../../use-stable-clone';
 
+const noop = () => {
+  // NO-OP
+};
+
 const context = createContext<{
   nodeSubscriber: NodeMutationSubscriber;
   edgeSubscriber: EdgeMutationSubscriber;
-}>(null);
+}>({
+  nodeSubscriber: noop,
+  edgeSubscriber: noop,
+});
 
 export function useNodeMutation(nodeId: string, onChange: NodeMutation): void {
   const onChangeRef = useRef(onChange);
@@ -114,7 +121,7 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: EdgeGroup[] }> = ({
             .id((d) => d.id)
             .distance(120),
         )
-        .force('charge', d3.forceManyBody().strength(-500).distanceMax(150))
+        .force('charge', d3.forceManyBody().strength(-500).distanceMax(150));
 
       // TODO: consider this when we can plumn tick XOR drag event data
       // if (!clonedNodes.some((n) => !n.fixed)) simulation.stop();
@@ -146,7 +153,9 @@ export const Simulation: React.FC<{ nodes: Node[]; edges: EdgeGroup[] }> = ({
         });
 
         node.each((d) => {
-          nodeMutations.current[d.id]?.('tick', { x: d.x, y: d.y });
+          if (typeof d.x === 'number' && typeof d.y === 'number') {
+            nodeMutations.current[d.id]?.('tick', { x: d.x, y: d.y });
+          }
         });
       });
 
