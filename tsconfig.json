@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "module": "commonjs",
     "noImplicitReturns": true,
     "outDir": "dist",
@@ -14,8 +11,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": []
 }
