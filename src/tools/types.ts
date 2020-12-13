@@ -33,16 +33,20 @@ export interface ObjectType extends Named {
   interfaces: InterfaceFieldType[];
 }
 
-export function isObjectType(type: SchemaType): type is ObjectType {
-  return type.kind === 'OBJECT';
+export function isObjectType(
+  type: SchemaType | undefined | null,
+): type is ObjectType {
+  return type?.kind === 'OBJECT';
 }
 
 export interface ScalarType extends Named {
   kind: 'SCALAR';
 }
 
-export function isScalarType(type: SchemaType): type is ScalarType {
-  return type.kind === 'SCALAR';
+export function isScalarType(
+  type: SchemaType | undefined | null,
+): type is ScalarType {
+  return type?.kind === 'SCALAR';
 }
 
 export interface EnumType extends Named {
@@ -52,8 +56,10 @@ export interface EnumType extends Named {
 
 export interface EnumValue extends Named, Deprecable {}
 
-export function isEnumType(type: SchemaType): type is EnumType {
-  return type.kind === 'ENUM';
+export function isEnumType(
+  type: SchemaType | undefined | null,
+): type is EnumType {
+  return type?.kind === 'ENUM';
 }
 
 export interface InputObjectType extends Named {
@@ -66,8 +72,10 @@ export interface InputField extends Named {
   defaultValue: string | null;
 }
 
-export function isInputObjectType(type: SchemaType): type is InputObjectType {
-  return type.kind === 'INPUT_OBJECT';
+export function isInputObjectType(
+  type: SchemaType | undefined | null,
+): type is InputObjectType {
+  return type?.kind === 'INPUT_OBJECT';
 }
 
 export interface InterfaceType extends Named {
@@ -76,8 +84,10 @@ export interface InterfaceType extends Named {
   possibleTypes: ObjectFieldType[];
 }
 
-export function isInterfaceType(type: SchemaType): type is InterfaceType {
-  return type.kind === 'INTERFACE';
+export function isInterfaceType(
+  type: SchemaType | undefined | null,
+): type is InterfaceType {
+  return type?.kind === 'INTERFACE';
 }
 
 export interface UnionType extends Named {
@@ -85,15 +95,19 @@ export interface UnionType extends Named {
   possibleTypes: ObjectFieldType[];
 }
 
-export function isUnionType(type: SchemaType): type is UnionType {
-  return type.kind === 'UNION';
+export function isUnionType(
+  type: SchemaType | undefined | null,
+): type is UnionType {
+  return type?.kind === 'UNION';
 }
 
 export type Type = FieldTypeWrapper | FieldType;
 
 export type FieldTypeWrapper = NonNullFieldType | ListFieldType;
 
-export function isFieldTypeWrapper(type: Type): type is FieldTypeWrapper {
+export function isFieldTypeWrapper(
+  type: Type | undefined | null,
+): type is FieldTypeWrapper {
   return isNonNullFieldType(type) || isListFieldType(type);
 }
 
@@ -102,17 +116,21 @@ export interface NonNullFieldType {
   ofType: FieldType;
 }
 
-export function isNonNullFieldType(type: Type): type is NonNullFieldType {
-  return type.kind === 'NON_NULL';
+export function isNonNullFieldType(
+  type: Type | undefined | null,
+): type is NonNullFieldType {
+  return type?.kind === 'NON_NULL';
 }
 
 export interface ListFieldType {
   kind: 'LIST';
-  ofType: FieldType;
+  ofType: FieldType | NonNullFieldType;
 }
 
-export function isListFieldType(type: Type): type is ListFieldType {
-  return type.kind === 'LIST';
+export function isListFieldType(
+  type: Type | undefined | null,
+): type is ListFieldType {
+  return type?.kind === 'LIST';
 }
 
 export type FieldType =
@@ -127,8 +145,10 @@ export interface ObjectFieldType {
   name: string;
 }
 
-export function isObjectFieldType(type: Type): type is ObjectFieldType {
-  return type.kind === 'OBJECT';
+export function isObjectFieldType(
+  type: Type | undefined | null,
+): type is ObjectFieldType {
+  return type?.kind === 'OBJECT';
 }
 
 export interface ScalarFieldType {
@@ -136,8 +156,10 @@ export interface ScalarFieldType {
   name: string;
 }
 
-export function isScalarFieldType(type: Type): type is ScalarFieldType {
-  return type.kind === 'SCALAR';
+export function isScalarFieldType(
+  type: Type | undefined | null,
+): type is ScalarFieldType {
+  return type?.kind === 'SCALAR';
 }
 
 export interface EnumFieldType {
@@ -145,8 +167,10 @@ export interface EnumFieldType {
   name: string;
 }
 
-export function isEnumFieldType(type: Type): type is EnumFieldType {
-  return type.kind === 'ENUM';
+export function isEnumFieldType(
+  type: Type | undefined | null,
+): type is EnumFieldType {
+  return type?.kind === 'ENUM';
 }
 
 export interface UnionFieldType {
@@ -154,8 +178,10 @@ export interface UnionFieldType {
   name: string;
 }
 
-export function isUnionFieldType(type: Type): type is UnionFieldType {
-  return type.kind === 'UNION';
+export function isUnionFieldType(
+  type: Type | undefined | null,
+): type is UnionFieldType {
+  return type?.kind === 'UNION';
 }
 
 export interface InterfaceFieldType {
@@ -163,8 +189,10 @@ export interface InterfaceFieldType {
   name: string;
 }
 
-export function isInterfaceFieldType(type: Type): type is InterfaceFieldType {
-  return type.kind === 'INTERFACE';
+export function isInterfaceFieldType(
+  type: Type | undefined | null,
+): type is InterfaceFieldType {
+  return type?.kind === 'INTERFACE';
 }
 
 export interface Field extends Named, Deprecable {

@@ -1,4 +1,4 @@
-import { Node as RawNode, Edge as RawEdge } from '../tools/convert';
+import { Node as RawNode, Edge as RawEdge } from '../types';
 
 export interface Node extends RawNode {
   fixed?: boolean;

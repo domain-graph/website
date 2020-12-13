@@ -10,7 +10,8 @@
     "jsx": "react",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "downlevelIteration": true
   },
   "include": ["src/**/*"],
   "exclude": []
