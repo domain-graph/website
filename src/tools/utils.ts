@@ -1,9 +1,9 @@
 import {
   Field,
-  Type,
+  FieldType,
   Schema,
   SchemaType,
-  FieldType,
+  SpecificFieldType,
   isObjectType,
   isInterfaceType,
 } from './types';
@@ -32,22 +32,22 @@ export function getField(typeName: string, fieldName: string, schema: Schema) {
     const field = type.fields.find((f) => f.name === fieldName);
 
     if (field) {
-      return getFieldType(field);
+      return normalizeFieldType(field.type);
     }
   }
 
   return null;
 }
 
-export function getFieldType(
-  field: Field,
-): {
-  type: FieldType;
+export type NormalizedFieldType = {
+  type: SpecificFieldType;
   isNotNull: boolean;
   isList: boolean;
   isListElementNotNull: boolean | null;
-} {
-  let type: Type = field.type;
+};
+
+export function normalizeFieldType(fieldType: FieldType): NormalizedFieldType {
+  let type: FieldType = fieldType;
   const isNotNull = type.kind === 'NON_NULL';
   let isList = false;
   let isListElementNotNull: boolean | null = null;

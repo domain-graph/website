@@ -2,15 +2,16 @@ import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { format } from 'prettier';
 import { GraphFactory } from './factory';
+import { interospectionHeuristic } from './factory/heuristics/introspection';
 import { connectionHeuristic } from './factory/heuristics/relay-connection';
 
-import { Field, FieldType, Schema } from './types';
+import { Field, SpecificFieldType, Schema } from './types';
 
 const schema: Schema = JSON.parse(
   readFileSync(join('data', 'schema.json')).toString(),
 );
 
-const factory = new GraphFactory(connectionHeuristic);
+const factory = new GraphFactory(connectionHeuristic, interospectionHeuristic);
 
 const { nodes, edges } = factory.build(schema);
 
@@ -32,7 +33,7 @@ function getFieldType(
   field: Field,
 ): {
   plurality: 'single' | 'array';
-  type: FieldType;
+  type: SpecificFieldType;
   optional: boolean;
 } {
   let t = field.type;
