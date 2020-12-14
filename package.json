@@ -15,6 +15,7 @@
   "keywords": [],
   "author": "",
   "private": true,
+  "license": "MIT",
   "devDependencies": {
     "@types/d3": "^6.2.0",
     "@types/d3-force": "^2.1.0",
