@@ -8,5 +8,5 @@ export interface Node extends RawNode {
 export type Edge = RawEdge;
 
 export interface EdgeGroup extends Pick<RawEdge, 'id' | 'source' | 'target'> {
-  edges: (Omit<RawEdge, 'id' | 'source' | 'target'> & { reverse?: true })[];
+  edges: (Omit<RawEdge, 'source' | 'target'> & { reverse?: true })[];
 }

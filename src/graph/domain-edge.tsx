@@ -12,11 +12,17 @@ import ChevronDown from '../icons/chevron-down';
 
 export interface DomainEdgeProps {
   edge: EdgeGroup;
+  selectedEdgeId?: string;
+  onSelect: (ids: string) => void;
 }
 
 const handleSize = 20;
 
-export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
+export const DomainEdge: React.FC<DomainEdgeProps> = ({
+  edge,
+  onSelect,
+  selectedEdgeId,
+}) => {
   const g = useRef<SVGGElement>(null);
   const paths = useRef<SVGPathElement[]>([]);
   const handles = useRef<SVGGElement[]>([]);
@@ -64,8 +70,15 @@ export const DomainEdge: React.FC<DomainEdgeProps> = ({ edge }) => {
     <g id={edge.id} className="c-domain-edge edge" ref={g}>
       {edge.edges.map((e) => (
         <React.Fragment key={e.name}>
-          <path className={e.optional ? 'optional' : 'required'} />
-          <g className="handle">
+          <path
+            className={`${e.optional ? 'optional' : 'required'}${
+              selectedEdgeId === e.id ? ' selected' : ''
+            }`}
+          />
+          <g
+            className={`handle${selectedEdgeId === e.id ? ' selected' : ''}`}
+            onClick={() => onSelect(e.id)}
+          >
             <rect width={handleSize} height={handleSize} />
             {e.plurality === 'array' ? (
               e.reverse ? (

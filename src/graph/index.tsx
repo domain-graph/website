@@ -9,6 +9,7 @@ import { DomainEdge } from './domain-edge';
 import { Simulation } from './simulation';
 import Eye from '../icons/eye';
 import { NodePicker } from './node-picker';
+import { Spotlight } from './spotlight';
 
 export interface GraphProps {
   width: number;
@@ -18,23 +19,43 @@ export interface GraphProps {
 }
 
 export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
+  const [selectedSource, setSelectedSource] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<Node | null>(null);
+
   const [allNodes, setAllNodes] = useState<Node[]>(
     nodes.map((node) => ({ ...node, isHidden: true })),
   );
 
   const handleHideAll = useCallback(() => {
+    setSelectedSource(null);
+    setSelectedEdge(null);
+    setSelectedTarget(null);
     setAllNodes((prev) => prev.map((node) => ({ ...node, isHidden: true })));
   }, []);
 
   const handleHideUnpinned = useCallback(() => {
     setAllNodes((prev) =>
-      prev.map((node) => (node.fixed ? node : { ...node, isHidden: true })),
+      prev.map((node) => {
+        if (node.fixed) return node;
+
+        if (selectedSource?.id === node.id) {
+          setSelectedSource(null);
+          setSelectedEdge(null);
+          setSelectedTarget(null);
+        } else if (selectedTarget?.id === node.id) {
+          setSelectedEdge(null);
+          setSelectedTarget(null);
+        }
+
+        return node.fixed ? node : { ...node, isHidden: true };
+      }),
     );
-  }, []);
+  }, [selectedSource, selectedTarget]);
 
   const allEdges: EdgeGroup[] = useMemo(() => {
     const index = edges.reduce<{ [id: string]: EdgeGroup }>((acc, edge) => {
-      const { id, source, target, ...rest } = edge;
+      const { source, target, ...rest } = edge;
 
       const forwardId = `${source}>${target}`;
       const reverseId = `${target}>${source}`;
@@ -88,7 +109,7 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
     setAllNodes((prev) =>
       prev.some((node) => node.id === nodeId)
         ? prev.map((node) =>
-            node.id === nodeId ? { ...node, isHidden, fixed: false } : node,
+            node.id === nodeId ? { ...node, isHidden } : node,
           )
         : prev,
     );
@@ -135,22 +156,79 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
     [allEdges],
   );
 
+  const handleSelectNode = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+
+      if (node?.isHidden) {
+        setIsHidden(node.id, false);
+      }
+      // TODO: pan to node
+      setSelectedSource(node || null);
+      setSelectedEdge(null);
+      setSelectedTarget(null);
+    },
+    [nodes, setIsHidden],
+  );
+
+  const handleSelectEdge = useCallback(
+    (edgeId: string) => {
+      const edge = edges.find((e) => e.id === edgeId) || null;
+      const source = nodes.find((n) => n.id === edge?.source) || null;
+      const target = nodes.find((n) => n.id === edge?.target) || null;
+
+      if (source && edge && target) {
+        console.log({ source, target });
+        if (source.isHidden !== false) {
+          console.log('show source?.isHidden', source);
+          setIsHidden(source.id, false);
+        }
+
+        if (target.isHidden !== false) {
+          console.log('show target?.isHidden', target);
+          setIsHidden(target.id, false);
+        }
+        // TODO: pad to edge center
+        setSelectedSource(source);
+        setSelectedEdge(edge);
+        setSelectedTarget(target);
+      } else {
+        setSelectedSource(null);
+        setSelectedEdge(null);
+        setSelectedTarget(null);
+      }
+    },
+    [nodes, edges, setIsHidden],
+  );
+
   return (
     <Simulation nodes={visibleNodes} edges={visibleEdges}>
       <SvgCanvas>
         <g>
           {visibleEdges.map((edge) => (
-            <DomainEdge key={edge.id} edge={edge} />
+            <DomainEdge
+              key={edge.id}
+              selectedEdgeId={selectedEdge?.id}
+              edge={edge}
+              onSelect={handleSelectEdge}
+            />
           ))}
         </g>
         <g>
           {visibleNodes.map((node) => (
             <DomainObject
               key={node.id}
+              isSelected={
+                selectedSource?.id === node.id || selectedTarget?.id === node.id
+              }
               onPin={(id) => setIsPinned(id, true)}
               onUnpin={(id) => setIsPinned(id, false)}
-              onHide={(id) => setIsHidden(id, true)}
+              onHide={(id) => {
+                setIsHidden(id, true);
+                setIsPinned(id, false);
+              }}
               onExpand={handleExpand}
+              onSelect={handleSelectNode}
               node={node}
             />
           ))}
@@ -165,9 +243,17 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
         onHide={(id) => {
           console.log('hide', id);
           setIsHidden(id, true);
+          setIsPinned(id, false);
         }}
         onHideAll={handleHideAll}
         onHideUnpinned={handleHideUnpinned}
+      />
+
+      <Spotlight
+        source={selectedSource}
+        edge={selectedEdge}
+        target={selectedTarget}
+        onSelectEdge={handleSelectEdge}
       />
     </Simulation>
   );

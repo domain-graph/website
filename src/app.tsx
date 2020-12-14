@@ -6,7 +6,7 @@ import nodes from '../data/nodes.json';
 console.log({ nodes, edges });
 
 import { Graph } from './graph';
-import { Edge } from './graph/types';
+import { Edge, Node } from './graph/types';
 
 export const App: React.FC<{}> = () => {
   const randomNumber = useMemo(() => Math.random(), []);
@@ -14,7 +14,12 @@ export const App: React.FC<{}> = () => {
     <>
       Hello from React!
       <h1>Random number: {randomNumber}</h1>
-      <Graph width={1200} height={800} edges={edges as Edge[]} nodes={nodes} />
+      <Graph
+        width={1200}
+        height={800}
+        edges={edges as Edge[]}
+        nodes={nodes as Node[]}
+      />
     </>
   );
 };

@@ -14,18 +14,22 @@ import { RadialMenu } from './radial-menu';
 
 export interface DomainObjectProps {
   node: Node;
+  isSelected: boolean;
   onPin: (id: string) => void;
   onUnpin: (id: string) => void;
   onHide: (id: string) => void;
   onExpand: (id: string) => void;
+  onSelect: (id: string) => void;
 }
 
 export const DomainObject: React.FC<DomainObjectProps> = ({
   node,
+  isSelected,
   onPin,
   onUnpin,
   onHide,
   onExpand,
+  onSelect,
 }) => {
   const handle = useRef<SVGGElement>(null);
   const controls = useRef<SVGGElement>(null);
@@ -70,7 +74,7 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
     <g
       className={`c-domain-object simulation-node${
         isDragging ? ' dragging' : ''
-      }${isPinned ? ' pinned' : ''}`}
+      }${isPinned ? ' pinned' : ''}${isSelected ? ' selected' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -98,7 +102,12 @@ export const DomainObject: React.FC<DomainObjectProps> = ({
           </RadialMenu>
         </g>
       </g>
-      <g ref={handle} className="handle" id={node.id}>
+      <g
+        ref={handle}
+        className="handle"
+        id={node.id}
+        onClick={() => onSelect(node.id)}
+      >
         <circle r="30" />
         <text>{node.id}</text>
       </g>
