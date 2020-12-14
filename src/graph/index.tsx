@@ -127,7 +127,6 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
 
   const handleExpand = useCallback(
     (nodeId: string) => {
-      console.log('expand', nodeId);
       setAllNodes((prev) => {
         const nodeIds = allEdges
           .filter((edge) => edge.source === nodeId || edge.target === nodeId)
@@ -178,14 +177,11 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
       const target = nodes.find((n) => n.id === edge?.target) || null;
 
       if (source && edge && target) {
-        console.log({ source, target });
         if (source.isHidden !== false) {
-          console.log('show source?.isHidden', source);
           setIsHidden(source.id, false);
         }
 
         if (target.isHidden !== false) {
-          console.log('show target?.isHidden', target);
           setIsHidden(target.id, false);
         }
         // TODO: pad to edge center
@@ -237,11 +233,9 @@ export const Graph: React.FC<GraphProps> = ({ nodes, edges }) => {
       <NodePicker
         nodes={allNodes}
         onShow={(id) => {
-          console.log('show', id);
           setIsHidden(id, false);
         }}
         onHide={(id) => {
-          console.log('hide', id);
           setIsHidden(id, true);
           setIsPinned(id, false);
         }}
