@@ -1,0 +1,190 @@
+body {
+  background: #f4f1de;
+  color: #222222;
+}
+body text {
+  fill: #222222;
+}
+.c-uploader {
+  font-family: sans-serif;
+  text-align: center;
+  width: 500px;
+  margin: 150px auto;
+  padding: 50px;
+  border-radius: 100px;
+  border: 8px dashed #3d405b;
+}
+.c-uploader.drop-ready {
+  background-color: #f2cc8f;
+}
+
+.c-svg-canvas {
+  user-select: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  cursor: grab;
+}
+.c-svg-canvas.dragging {
+  cursor: grabbing;
+}
+.c-svg-canvas svg {
+  display: block !important;
+  border: none !important;
+  margin: 0 !important;
+}
+ul.hidden-nodes {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: sans-serif;
+}
+
+.c-domain-object .handle {
+  cursor: grab;
+}
+.c-domain-object .handle circle {
+  fill: #81b29a;
+  stroke: #3d405b;
+  stroke-width: 2;
+}
+.c-domain-object.selected .handle circle {
+  stroke: #e07a5f;
+  stroke-width: 4;
+}
+.c-domain-object.dragging .handle {
+  cursor: grabbing;
+}
+.c-domain-object text {
+  font-family: sans-serif;
+  stroke: none;
+  text-anchor: middle;
+  alignment-baseline: middle;
+}
+.c-domain-object .controls rect.click-target {
+  fill: transparent;
+}
+.c-domain-object .controls .control-wheel {
+  fill: transparent;
+}
+.c-domain-object .controls .control-wheel .c-icon {
+  stroke: #3d405b;
+}
+
+.c-icon {
+  stroke: #3d405b;
+}
+
+.c-svg-button circle.background {
+  fill: #f2cc8f;
+  stroke: #3d405b;
+  stroke-width: 2;
+}
+.c-svg-button .click-target {
+  cursor: pointer;
+  fill: transparent;
+}
+
+.c-domain-edge .handle rect {
+  cursor: pointer;
+  rx: 3;
+  fill: #f4f1de;
+  stroke: #3d405b;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.c-domain-edge .handle.selected rect {
+  stroke: #e07a5f;
+  stroke-width: 4;
+}
+.c-domain-edge path {
+  stroke: #3d405b;
+  stroke-width: 2;
+  fill: none;
+}
+.c-domain-edge path.optional {
+  stroke-dasharray: 4 2;
+}
+.c-domain-edge path.selected {
+  stroke: #e07a5f;
+  stroke-width: 4;
+}
+
+.c-node-picker {
+  overflow: hidden;
+  display: inline-block;
+  position: absolute;
+  width: 300px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 22px 70px 4px rgba(0, 0, 0, 0.56), 0 0 0 1px rgba(0, 0, 0, 0);
+  border-radius: 20px;
+  padding: 16px;
+  top: 20px;
+  left: 20px;
+  font-family: sans-serif;
+}
+.c-node-picker ul,
+.c-node-picker li {
+  margin: 0;
+  padding: 0;
+}
+.c-node-picker li {
+  list-style: none;
+}
+.c-node-picker ul {
+  max-height: 600px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+.c-node-picker ul::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+.c-node-picker button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  outline: none;
+}
+.c-node-picker button:focus {
+  background-color: #f2cc8f;
+}
+
+.c-spotlight {
+  font-family: sans-serif;
+  overflow: scroll;
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+}
+.c-spotlight .node-spotlight {
+  border: 2px solid #3d405b;
+  background-color: #81b29a;
+  margin: 10px;
+  border-radius: 30px;
+  padding: 10px 20px;
+}
+.c-spotlight .edge-spotlight {
+  border: 2px solid #3d405b;
+  background-color: #f4f1de;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 10px 30px;
+}
+.c-spotlight h1 {
+  text-align: center;
+  font-size: 18px;
+}
+
