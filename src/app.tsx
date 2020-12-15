@@ -65,7 +65,7 @@ const Uploader: React.FC = () => {
 
       <p>
         To get a schema file, run the Apollo introspection query. Save the
-        results and drop the file onto this box.
+        results and drag the file into this box.
       </p>
     </div>
   );
