@@ -8,26 +8,26 @@ on:
 
 jobs:
   build:
-
+  
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [10,12,14,15]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 14
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14
       - run: npm ci
       - run: npm run build --if-present
       # - run: npm test
 
       - name: Deploy
-        if: ${{ matrix.node-version }} = 14
-        uses: peaceiris/actions-gh-pages@v3
+        uses: cpina/github-action-push-to-another-repository@v1.2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          source-directory: 'dist'
+          user-email: stpehen.konves@gmail.com
+          destination-github-username: 'skonves'
+          destination-repository-username: 'domain-graph'
+          destination-repository-name: 'domain-graph.github.io'
