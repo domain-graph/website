@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-  
+
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source-directory: 'dist'
-          user-email: stpehen.konves@gmail.com
+          user-email: stephen.konves@gmail.com
           destination-github-username: 'skonves'
           destination-repository-username: 'domain-graph'
           destination-repository-name: 'domain-graph.github.io'
