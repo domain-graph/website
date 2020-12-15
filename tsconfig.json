@@ -6,7 +6,7 @@
     "outDir": "dist",
     "sourceMap": true,
     "target": "es5",
-    "declaration": true,
+    "declaration": false,
     "jsx": "react",
     "esModuleInterop": true,
     "resolveJsonModule": true,
