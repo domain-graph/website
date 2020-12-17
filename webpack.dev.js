@@ -24,7 +24,6 @@ module.exports = merge(common, {
           'css-loader',
           'less-loader',
         ],
-        exclude: /node_modules/,
       },
     ],
   },

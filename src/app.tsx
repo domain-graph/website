@@ -1,29 +1,14 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { DataSource, useDataSource } from './data-source';
+import './app.less';
 
-import { Graph } from './graph';
-import UploadCloud from './icons/upload-cloud';
+import React, { useCallback, useState } from 'react';
 
-export const App: React.FC<{}> = () => {
-  return (
-    <DataSource>
-      <MainPage />
-    </DataSource>
-  );
-};
+import UploadCloud from 'domain-graph/lib/icons/upload-cloud';
+type Schema = DomainGraphProps['schema'];
 
-const MainPage: React.FC = () => {
-  const { nodes, edges } = useDataSource();
+import { DomainGraph, DomainGraphProps } from 'domain-graph';
 
-  if (nodes.length) {
-    return <Graph width={1200} height={800} edges={edges} nodes={nodes} />;
-  } else {
-    return <Uploader />;
-  }
-};
-
-const Uploader: React.FC = () => {
-  const { setSchema } = useDataSource();
+export const App: React.VFC<{}> = () => {
+  const [schema, setSchema] = useState<Schema>();
 
   const [dropReady, setDropReady] = useState(false);
 
@@ -46,11 +31,12 @@ const Uploader: React.FC = () => {
 
       const text = new TextDecoder().decode(arrayBuffer);
 
-      const schema = JSON.parse(text);
-      setSchema(schema);
+      setSchema(JSON.parse(text));
     },
-    [setSchema],
+    [],
   );
+
+  if (schema) return <DomainGraph schema={schema} />;
 
   return (
     <div

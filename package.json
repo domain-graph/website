@@ -1,12 +1,12 @@
 {
-  "name": "domain-graph",
+  "name": "domain-graph-website",
   "version": "0.0.1",
   "description": "Blank web application built with Typescript and LESS",
   "main": "index.js",
   "scripts": {
     "test": "jest",
     "start": "webpack serve --config webpack.dev.js",
-    "prebuild": "npm run lint && rm -rf lib/*",
+    "prebuild": "npm run lint && rm -rf dist/*",
     "build": "webpack --config webpack.prod.js",
     "lint": "eslint src/**/*.ts",
     "pretest": "rm -rf coverage/*",
@@ -49,6 +49,7 @@
   "dependencies": {
     "d3": "^6.2.0",
     "d3-force": "^2.1.1",
+    "domain-graph": "0.0.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   }
