@@ -7,7 +7,10 @@ import {
   DataProvider,
   DomainGraph,
   OpenFilesResult,
+  LocalStorageStateRepository,
 } from 'domain-graph';
+
+const repository = new LocalStorageStateRepository();
 
 export const App: React.VFC = () => {
   const handleDrop = useCallback(async () => {
@@ -26,7 +29,13 @@ export const App: React.VFC = () => {
   return (
     <>
       <DataProvider onDrop={handleDrop} onShowOpenDialog={handleShowOpenDialog}>
-        {(introspection) => <DomainGraph introspection={introspection} />}
+        {(introspection) => (
+          <DomainGraph
+            graphId="default"
+            introspection={introspection}
+            repository={repository}
+          />
+        )}
       </DataProvider>
       <BrowserOpenFileDialog
         ref={openFileDialog}
