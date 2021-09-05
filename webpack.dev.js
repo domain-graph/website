@@ -22,7 +22,13 @@ module.exports = merge(common, {
           'css-hot-loader',
           MiniCssExtractPlugin.loader,
           'css-loader',
-          'less-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              additionalData:
+                "@import '/node_modules/domain-graph/lib/colors.less';",
+            },
+          },
         ],
       },
     ],
