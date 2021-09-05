@@ -11,7 +11,17 @@ module.exports = merge(common, {
     rules: [
       {
         test: /\.less$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              additionalData:
+                "@import '/node_modules/domain-graph/lib/colors.less';",
+            },
+          },
+        ],
       },
     ],
   },
