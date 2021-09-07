@@ -8,6 +8,7 @@
     "start": "webpack serve --config webpack.dev.js",
     "prebuild": "npm run lint && rm -rf dist/*",
     "build": "webpack --config webpack.prod.js",
+    "postbuild": "copyfiles -u 1 favicons/**.* dist",
     "lint": "eslint src/**/*.ts",
     "pretest": "rm -rf coverage/*",
     "data": "ts-node ./src/tools/convert.ts"
