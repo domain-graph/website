@@ -4,6 +4,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import { App } from './app';
 
+console.log(`domain-graph@${require('domain-graph/package.json').version}`);
+
 render(<App />, document.getElementById('app-root'));
 
 // Hot Module Replacement API
