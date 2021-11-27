@@ -29,10 +29,10 @@ export const App: React.VFC = () => {
   return (
     <>
       <DataProvider onDrop={handleDrop} onShowOpenDialog={handleShowOpenDialog}>
-        {(introspection) => (
+        {(documentNode) => (
           <DomainGraph
             graphId="default"
-            introspection={introspection}
+            documentNode={documentNode}
             repository={repository}
           />
         )}
