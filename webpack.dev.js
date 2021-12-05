@@ -8,7 +8,7 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'development',
   devServer: {
-    static: { directory: path.join(__dirname, 'dist') },
+    static: { directory: path.join(__dirname, 'build/dist') },
     port: 9000,
     hot: true,
   },
