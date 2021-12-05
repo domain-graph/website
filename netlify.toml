@@ -1,0 +1,4 @@
+[build]
+  publish = 'build/dist/'
+[functions]
+  directory = 'build/functions/'
