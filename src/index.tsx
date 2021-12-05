@@ -4,7 +4,9 @@ import React from 'react';
 import { render } from 'react-dom';
 import { App } from './app';
 
-console.log(`domain-graph@${require('domain-graph/package.json').version}`);
+import { buildInfo } from './build-info';
+
+console.log(JSON.stringify(buildInfo, null, 2));
 
 render(<App />, document.getElementById('app-root'));
 

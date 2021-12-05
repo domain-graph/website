@@ -119,6 +119,7 @@ data
 
 # Build output
 build/
+src/build-info.ts
 
 # Netlify output
 .netlify/
