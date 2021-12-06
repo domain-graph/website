@@ -65,6 +65,8 @@
     "d3-force": "^2.1.1",
     "domain-graph": "^0.5.0",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "react-router-dom": "^6.0.2",
+    "use-http": "^1.0.26"
   }
 }
