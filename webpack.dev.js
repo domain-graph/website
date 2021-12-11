@@ -11,6 +11,7 @@ module.exports = merge(common, {
     static: { directory: path.join(__dirname, 'build/dist') },
     port: 9000,
     hot: true,
+    historyApiFallback: true
   },
   devtool: 'inline-source-map',
   module: {
