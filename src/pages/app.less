@@ -1,4 +1,4 @@
-@import './colors.less';
+@import '../colors.less';
 
 .c-uploader {
   font-family: sans-serif;
@@ -16,4 +16,17 @@
   &.drop-ready {
     background-color: @color-drop-target-ready-background;
   }
+}
+
+body {
+  background: @color-window-background;
+  color: @color-window-text-default;
+
+  text {
+    fill: @color-window-text-default;
+  }
+}
+
+.c-toolbar {
+  top: 8px !important; // TODO: don't do this (Issue #29)
 }

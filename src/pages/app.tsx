@@ -89,6 +89,26 @@ export const App: React.VFC = () => {
   const saveStateFromUrl = useSaveState();
   const { pathname, search } = useLocation();
 
+  const styleLinkRef = useRef<HTMLElement | null>(null);
+  const styleLinkParentRef = useRef<ParentNode | null>(null);
+
+  // We remove the styles here to prevent tailwind css from
+  // Breaking the DomainGraph app. There is an unfortunate FOUC
+  // when navigating to and from this compnent; however, this
+  // prevents a FOUC when loading the main page or when navigating
+  // to any other non-app pages.
+  useEffect(() => {
+    styleLinkRef.current = document.getElementById('tailwind');
+    styleLinkParentRef.current = styleLinkRef.current?.parentNode || null;
+    styleLinkRef.current?.remove();
+
+    return () => {
+      if (styleLinkRef.current) {
+        styleLinkParentRef.current?.appendChild(styleLinkRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (graphId && saveStateFromUrl) {
       repository.set(graphId, saveStateFromUrl);
