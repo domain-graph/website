@@ -29,9 +29,12 @@ export const Template: React.FC = ({ children }) => (
 
       <nav>
         <ul className="flex">
-          <HeaderLink to="/app">Try it out!</HeaderLink>
+          {/* <HeaderLink to="/app">Try it out!</HeaderLink>
           <HeaderLink to="/docs">Documentation</HeaderLink>
-          <HeaderLink to="/blog">Blog</HeaderLink>
+          <HeaderLink to="/blog">Blog</HeaderLink> */}
+          <HeaderLink to="https://github.com/sponsors/skonves" external>
+            ❤️ Sponsor
+          </HeaderLink>
           <HeaderLink
             to="https://marketplace.visualstudio.com/items?itemName=stevekonves.domain-graph-vscode"
             external
