@@ -65,6 +65,9 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@analytics/google-analytics": "^0.5.3",
+    "analytics": "^0.7.19",
+    "analytics-plugin-do-not-track": "^0.1.5",
     "d3": "^6.2.0",
     "d3-force": "^2.1.1",
     "domain-graph": "^0.5.0",
@@ -72,6 +75,7 @@
     "react-dom": "^17.0.1",
     "react-router-dom": "^6.0.2",
     "tailwindcss": "^3.0.0",
+    "use-analytics": "^0.0.5",
     "use-http": "^1.0.26"
   }
 }
