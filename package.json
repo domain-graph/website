@@ -13,6 +13,7 @@
     "copyfiles": "run-s copyfiles:*",
     "copyfiles:favicons": "copyfiles -u 1 favicons/**.* build/dist",
     "copyfiles:images": "copyfiles images/**.* build/dist",
+    "copyfiles:static": "copyfiles -u 1 static/**.* static/* build/dist",
     "build-info": "ts-node tools/build-info.ts > src/build-info.ts",
     "lint": "run-s lint:*",
     "lint:eslint": "eslint src/**/*.ts",
