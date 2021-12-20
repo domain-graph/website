@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "data": "ts-node ./src/tools/convert.ts",
-    "prebuild": "run-s lint clean build-info tailwind",
+    "prebuild": "run-s lint clean build-info build:tailwind",
     "build": "run-s build:*",
     "build:webpack": "webpack --config webpack.prod.js",
     "build:tsc": "tsc -p tsconfig.build.json",
+    "build:tailwind": "tailwindcss -i src/tailwind.css -o build/dist/tailwind.css",
     "clean": "rimraf build",
     "copyfiles": "run-s copyfiles:*",
     "copyfiles:favicons": "copyfiles -u 1 favicons/**.* build/dist",
@@ -22,9 +23,11 @@
     "postbuild": "run-s copyfiles",
     "pretest": "rm -rf coverage/*",
     "test": "jest",
-    "prestart": "run-s build-info tailwind copyfiles",
-    "start": "webpack serve --config webpack.dev.js",
-    "tailwind": "tailwindcss -i src/tailwind.css -o build/dist/tailwind.css"
+    "prestart": "run-s build-info copyfiles",
+    "start": "run-s watch",
+    "watch": "concurrently npm:watch:*",
+    "watch:tailwind": "run-s \"build:tailwind -- --watch\"",
+    "watch:webpack": "webpack serve --config webpack.dev.js"
   },
   "keywords": [],
   "author": "",
