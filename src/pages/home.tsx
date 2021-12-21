@@ -9,6 +9,32 @@ import { OpenFilesResult } from 'domain-graph';
 import { useAppContext } from './router';
 import { parse } from 'graphql';
 
+const LinkedImage: React.VFC<{
+  src?: string;
+  to?: string;
+  external?: boolean;
+  className?: string;
+}> = ({ src, to, external = false, className }) => {
+  if (!src) return null;
+  if (to) {
+    if (external) {
+      return (
+        <a className={className + ' overflow-hidden'} href={to}>
+          <img src={src} />
+        </a>
+      );
+    } else {
+      return (
+        <Link className={className + ' overflow-hidden'} to={to}>
+          <img src={src} />
+        </Link>
+      );
+    }
+  } else {
+    return <img className={className} src={src} />;
+  }
+};
+
 const Section: React.VFC<{
   header: string;
   text: string;
@@ -20,30 +46,19 @@ const Section: React.VFC<{
   <div
     className={`flex justify-center flex-row ${
       type === 'left' ? 'bg-white' : ''
-    } py-48`}
+    } py-16 md:py-48`}
   >
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-24 max-w-6xl">
-      {!!img && !imgLink && !imgExtLink && (
-        <img className="rounded col-span-1 shadow-2xl shadow-black/60" src={img} />
-      )}
-      {!!img && !!imgExtLink && (
-        <a href={imgExtLink}>
-          <img className="rounded col-span-1 shadow-2xl shadow-black/60" src={img} />
-        </a>
-      )}
-      {!!img && !!imgLink && (
-        <Link to={imgLink}>
-          <img className="rounded col-span-1 shadow-2xl shadow-black/60" src={img} />
-        </Link>
-      )}
-      <div
-        className={`${
-          img ? 'col-span-1' : 'col-span-2'
-        } flex flex-col justify-center`}
-      >
-        <h2 className="text-3xl mb-12 font-bold">{header}</h2>
-        <p>{text}</p>
-      </div>
+    <div
+      className="max-w-6xl px-12 grid grid-rows-1 gap-12 md:block"
+    >
+      <LinkedImage
+        src={img}
+        to={imgExtLink || imgLink}
+        external={!!imgExtLink}
+        className="rounded shadow-2xl shadow-black/60 md:max-w-lg lg:max-w-xl md:float-left md:mr-24"
+      />
+      <h2 className="order-first text-3xl font-bold md:mb-12">{header}</h2>
+      <p className="">{text}</p>
     </div>
   </div>
 );
@@ -55,7 +70,7 @@ const SchemaCard: React.VFC<{
   onClick?: () => void;
   Icon: React.VFC<IconProps>;
 }> = ({ name, description, url = '#', Icon, onClick }) => (
-  <div className="bg-white w-48 m-8 rounded shadow hover:shadow-lg duration-100 text-left">
+  <div className="bg-white w-48 m-8 rounded shadow-lg md:shadow md:hover:shadow-lg duration-100 text-left">
     <Link
       className="p-4 block flex items-center flex-col"
       onClick={onClick}
@@ -108,8 +123,10 @@ export const Home: React.VFC = () => {
           Beautiful, interactive visualizations for GraphQL schemas
         </div>
 
-        <h2 className="mt-24 text-xl">Try it out with one of these live examples!</h2>
-        <div className="flex justify-center items-center">
+        <h2 className="mt-24 text-xl">
+          Try it out with one of these live examples!
+        </h2>
+        <div className="flex flex-wrap justify-center items-center">
           <SchemaCard
             name="Github"
             Icon={Github}
